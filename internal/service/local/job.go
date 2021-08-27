@@ -5,9 +5,9 @@ import (
 	"io"
 	"net"
 	"time"
-	YPCipher "yao-proxy/internal/cipher"
-	YPConn "yao-proxy/internal/conn"
-	"yao-proxy/internal/log"
+	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
+	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
+	"github.com/kainhuck/yao-proxy/internal/log"
 )
 
 // Job 每接收一个浏览器的请求，就开启一个任务

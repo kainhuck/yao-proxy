@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	YPCipher "yao-proxy/internal/cipher"
-	"yao-proxy/internal/utils"
+	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
+	"github.com/kainhuck/yao-proxy/internal/utils"
 )
 
 var cipher YPCipher.Cipher
