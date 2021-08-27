@@ -1,4 +1,5 @@
 {
   "port": 20807,
-  "key": "kainhuck"
+  "key": "kainhuck",
+  "debug": true
 }
