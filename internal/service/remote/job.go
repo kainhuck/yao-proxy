@@ -2,12 +2,12 @@ package remote
 
 import (
 	"encoding/binary"
+	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
+	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
+	"github.com/kainhuck/yao-proxy/internal/log"
+	YPPdu "github.com/kainhuck/yao-proxy/internal/pdu"
 	"net"
 	"time"
-	YPCipher "yao-proxy/internal/cipher"
-	YPConn "yao-proxy/internal/conn"
-	"yao-proxy/internal/log"
-	YPPdu "yao-proxy/internal/pdu"
 )
 
 // Job 每接收一个本地代理的请求，就开启一个任务

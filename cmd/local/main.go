@@ -1,6 +1,6 @@
 package main
 
-import "yao-proxy/internal/service/local"
+import "github.com/kainhuck/yao-proxy/internal/service/local"
 
 func main() {
 	local.Main()
