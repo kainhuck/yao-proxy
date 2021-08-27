@@ -21,16 +21,22 @@ type Job struct {
 	ci      YPCipher.Cipher
 }
 
-func NewJob(c net.Conn, ci YPCipher.Cipher) *Job {
+func NewJob(c net.Conn, ci YPCipher.Cipher, debug bool) *Job {
 	return &Job{
 		LocalConn: YPConn.NewConn(c),
-		logger:    log.NewLogger(true),
+		logger:    log.NewLogger(debug),
 		timeout:   300 * time.Second,
 		ci:        ci,
 	}
 }
 
 func (j *Job) Run() {
+	defer func() {
+		err := recover()
+		if err != nil {
+			j.logger.Error(err)
+		}
+	}()
 	defer func() {
 		_ = j.LocalConn.Close()
 	}()

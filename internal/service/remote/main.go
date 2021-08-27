@@ -3,10 +3,10 @@ package remote
 import (
 	"flag"
 	"fmt"
-	"log"
-	"net"
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	"github.com/kainhuck/yao-proxy/internal/utils"
+	"log"
+	"net"
 )
 
 var cipher YPCipher.Cipher
@@ -38,7 +38,7 @@ func Main() {
 				continue
 			}
 
-			job := NewJob(conn, cipher)
+			job := NewJob(conn, cipher, cfg.Debug)
 			go job.Run()
 		}
 	}()

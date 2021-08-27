@@ -2,12 +2,12 @@ package local
 
 import (
 	"fmt"
-	"io"
-	"net"
-	"time"
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
 	"github.com/kainhuck/yao-proxy/internal/log"
+	"io"
+	"net"
+	"time"
 )
 
 // Job 每接收一个浏览器的请求，就开启一个任务
@@ -21,7 +21,7 @@ type Job struct {
 	ci      YPCipher.Cipher
 }
 
-func NewJob(c net.Conn, remoteAddr string, ci YPCipher.Cipher) (*Job, error) {
+func NewJob(c net.Conn, remoteAddr string, ci YPCipher.Cipher, debug bool) (*Job, error) {
 	rc, err := YPConn.Dial(remoteAddr)
 	if err != nil {
 		return nil, err
@@ -30,13 +30,19 @@ func NewJob(c net.Conn, remoteAddr string, ci YPCipher.Cipher) (*Job, error) {
 	return &Job{
 		BrowserConn: c,
 		RemoteConn:  rc,
-		logger:      log.NewLogger(true),
+		logger:      log.NewLogger(debug),
 		timeout:     300 * time.Second,
 		ci:          ci,
 	}, nil
 }
 
 func (j *Job) Run() {
+	defer func() {
+		err := recover()
+		if err != nil {
+			j.logger.Error(err)
+		}
+	}()
 	defer func() {
 		_ = j.BrowserConn.Close()
 		_ = j.RemoteConn.Close()

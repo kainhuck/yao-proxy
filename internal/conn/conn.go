@@ -2,9 +2,9 @@ package conn
 
 import (
 	"encoding/binary"
+	YPPdu "github.com/kainhuck/yao-proxy/internal/pdu"
 	"io"
 	"net"
-	YPPdu "github.com/kainhuck/yao-proxy/internal/pdu"
 )
 
 // Conn 这个链接用于处理本地和远程之间的通信

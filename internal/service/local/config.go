@@ -12,6 +12,7 @@ type Config struct {
 	Key        string `json:"key"`
 	RemoteHost string `json:"remote_host"`
 	RemotePort int    `json:"remote_port"`
+	Debug      bool   `json:"debug"`
 }
 
 func ReadConfig(path string) (*Config, error) {

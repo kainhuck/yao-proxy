@@ -2,5 +2,6 @@
   "port": 20808,
   "key": "kainhuck",
   "remote_host": "127.0.0.1",
-  "remote_port": 20807
+  "remote_port": 20807,
+  "debug": true
 }
