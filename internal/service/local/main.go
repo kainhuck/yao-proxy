@@ -106,21 +106,6 @@ func handleConn(conn *YPConn.Conn) {
 	// 3. 将远程服务器发给我们的数据解密后转发给浏览器
 	go sendToBrowser(remoteConn, conn)
 
-	// 访问成功需要给客户端返回响应 假设访问成功
-	/*
-		   returns a reply formed as follows:
-			+----+-----+-------+------+----------+----------+
-			|VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
-			+----+-----+-------+------+----------+----------+
-			| 1  |  1  | X'00' |  1   | Variable |    2     |
-			+----+-----+-------+------+----------+----------+
-	*/
-	_, err = conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-	if err != nil {
-		log.Printf("[ERROR] write back error: %v", err)
-		return
-	}
-
 	// 4. 将浏览器的数据发送给远程
 	sendToRemote(conn, remoteConn)
 }
@@ -185,6 +170,21 @@ func handShake(conn *YPConn.Conn) (uint8, []byte, error) {
 			 o  DOMAINNAME: X'03'
 			 o  IP V6 address: X'04'
 	*/
+
+	// 访问成功需要给客户端返回响应 假设访问成功
+	/*
+		   returns a reply formed as follows:
+			+----+-----+-------+------+----------+----------+
+			|VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
+			+----+-----+-------+------+----------+----------+
+			| 1  |  1  | X'00' |  1   | Variable |    2     |
+			+----+-----+-------+------+----------+----------+
+	*/
+	_, err = conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+	if err != nil {
+		log.Printf("[ERROR] write back error: %v", err)
+		return 0, nil, err
+	}
 
 	return data[3], data[4:], nil
 }

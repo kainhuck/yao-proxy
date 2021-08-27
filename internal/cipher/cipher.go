@@ -27,7 +27,6 @@ func (c *cipher) Encrypt(originData []byte) (cipherData []byte, err error) {
 }
 
 func (c *cipher) Decrypt(cipherData []byte) (originData []byte, err error) {
-
 	originData = make([]byte, len(cipherData))
 
 	for bs, be := 0, c.BlockSize(); bs < len(cipherData); bs, be = bs+c.BlockSize(), be+c.BlockSize() {
