@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	Port       int    `json:"port"`
-	Key        string `json:"key"`
+	Port int    `json:"port"`
+	Key  string `json:"key"`
 }
 
 var defaultCfg = &Config{
