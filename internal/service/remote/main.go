@@ -14,8 +14,6 @@ import (
 
 var cipher YPCipher.Cipher
 
-var broker map[uint32]chan []byte
-
 func Main() {
 	var err error
 	// 参数 todo 后期改成从配置文件或环境变量中读取
@@ -32,8 +30,6 @@ func Main() {
 	if err != nil {
 		log.Fatalf("[ERROR] listen failed: %v", err)
 	}
-
-	broker = make(map[uint32]chan []byte)
 
 	go func() {
 		for {
