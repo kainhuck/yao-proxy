@@ -85,7 +85,7 @@ func (p *PDU) Decode(bts []byte) error {
 		return err
 	}
 	if len(bts) != 11+int(p.Length) {
-		return fmt.Errorf("error pdu length %v", 10+int(p.Length))
+		return fmt.Errorf("error pdu length %v", len(bts))
 	}
 	p.Data = make([]byte, p.Length)
 	if err := binary.Read(dataReader, binary.BigEndian, &p.Data); err != nil {
