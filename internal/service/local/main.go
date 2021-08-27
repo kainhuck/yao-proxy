@@ -160,7 +160,7 @@ func handShake(conn *YPConn.Conn) (uint8, []byte, error) {
 	*/
 	data, err = YPConn.Read(conn, 300*time.Second)
 	if err != nil {
-		if err != io.EOF{
+		if err != io.EOF {
 			return 0, nil, err
 		}
 	}
@@ -194,8 +194,8 @@ func sendToBrowser(remoteConn net.Conn, browserConn *YPConn.Conn) {
 	for {
 		cipherData, err := YPConn.Read(remoteConn, 300*time.Second)
 		if err != nil {
-			if err != io.EOF{
-				log.Printf("[ERROR] 接收远程代理服务器数据失败: %v",err)
+			if err != io.EOF {
+				log.Printf("[ERROR] 接收远程代理服务器数据失败: %v", err)
 			}
 			return
 		}
@@ -219,7 +219,7 @@ func sendToRemote(browserConn *YPConn.Conn, remoteConn net.Conn) {
 	for {
 		data, err := YPConn.Read(browserConn, 300*time.Second)
 		if err != nil {
-			if err != io.EOF{
+			if err != io.EOF {
 				log.Printf("[ERROR] 读取浏览器数据失败: %v", err)
 			}
 			return

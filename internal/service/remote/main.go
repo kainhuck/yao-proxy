@@ -53,7 +53,7 @@ func handleConn(conn net.Conn) {
 	}()
 	bts, err := YPConn.Read(conn, 300*time.Second)
 	if err != nil {
-		if err != io.EOF{
+		if err != io.EOF {
 			log.Printf("[ERROR] failed to read conn: %v", err)
 		}
 		return
@@ -124,7 +124,7 @@ func handleConn(conn net.Conn) {
 		for {
 			bts, err := YPConn.Read(targetConn, 300*time.Second)
 			if err != nil {
-				if err != io.EOF{
+				if err != io.EOF {
 					log.Printf("[ERROR] READ from Target error: %v", err)
 				}
 				return
@@ -148,7 +148,7 @@ func handleConn(conn net.Conn) {
 	for {
 		bts, err := YPConn.Read(conn, 300*time.Second)
 		if err != nil {
-			if err != io.EOF{
+			if err != io.EOF {
 				log.Printf("[ERROR] read error: %v", err)
 			}
 			return
