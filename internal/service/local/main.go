@@ -2,6 +2,7 @@ package local
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"math"
 	"net"
@@ -128,7 +129,9 @@ func handleConn(conn *YPConn.Conn) {
 func handShake(conn *YPConn.Conn) (uint8, []byte, error) {
 	data, err := YPConn.Read(conn, 300*time.Second)
 	if err != nil {
-		return 0, nil, err
+		if err != io.EOF {
+			return 0, nil, err
+		}
 	}
 	// 第一个包 用于选择协商方法
 	/*
@@ -172,7 +175,9 @@ func handShake(conn *YPConn.Conn) (uint8, []byte, error) {
 	*/
 	data, err = YPConn.Read(conn, 300*time.Second)
 	if err != nil {
-		return 0, nil, err
+		if err != io.EOF{
+			return 0, nil, err
+		}
 	}
 	/*
 		ATYP   address type of following address
@@ -189,6 +194,9 @@ func sendToBrowser(remoteConn net.Conn, browserConn *YPConn.Conn) {
 	for {
 		cipherData, err := YPConn.Read(remoteConn, 300*time.Second)
 		if err != nil {
+			if err != io.EOF{
+				log.Printf("[ERROR] 接收远程代理服务器数据失败: %v",err)
+			}
 			return
 		}
 		log.Printf("[INFO] 成功收到来自远程代理服务器的消息")
@@ -211,9 +219,12 @@ func sendToRemote(browserConn *YPConn.Conn, remoteConn net.Conn) {
 	for {
 		data, err := YPConn.Read(browserConn, 300*time.Second)
 		if err != nil {
+			if err != io.EOF{
+				log.Printf("[ERROR] 读取浏览器数据失败: %v", err)
+			}
 			return
 		}
-		log.Printf("[INFO] 成功读取到浏览器的数据:%v", data)
+
 		cipherData, err := cipher.Encrypt(data)
 		if err != nil {
 			log.Printf("[ERROR] Encrypt error: %v", err)

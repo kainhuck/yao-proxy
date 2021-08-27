@@ -3,6 +3,7 @@ package remote
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -56,7 +57,9 @@ func handleConn(conn net.Conn) {
 	}()
 	bts, err := YPConn.Read(conn, 300*time.Second)
 	if err != nil {
-		log.Printf("[ERROR] failed to read conn: %v", err)
+		if err != io.EOF{
+			log.Printf("[ERROR] failed to read conn: %v", err)
+		}
 		return
 	}
 
@@ -125,7 +128,9 @@ func handleConn(conn net.Conn) {
 		for {
 			bts, err := YPConn.Read(targetConn, 300*time.Second)
 			if err != nil {
-				log.Printf("[ERROR] READ from Target error: %v", err)
+				if err != io.EOF{
+					log.Printf("[ERROR] READ from Target error: %v", err)
+				}
 				return
 			}
 			log.Printf("[INFO] 成功从目标网站读到数据")
@@ -147,7 +152,9 @@ func handleConn(conn net.Conn) {
 	for {
 		bts, err := YPConn.Read(conn, 300*time.Second)
 		if err != nil {
-			log.Printf("[ERROR] read error: %v", err)
+			if err != io.EOF{
+				log.Printf("[ERROR] read error: %v", err)
+			}
 			return
 		}
 		pdu := &YPPdu.PDU{}
