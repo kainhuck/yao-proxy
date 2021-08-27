@@ -6,7 +6,7 @@
 
 工作原理图（该协议应用于本地代理和远程代理之间的通信，并约定本地代理和远程代理的工作职能）：
 
-![yao-proxy](/Users/xiaor/Downloads/yao-proxy.png)
+![yao-proxy](../img/yao-proxy.png)
 
 ## 2. 名词解释
 
@@ -47,7 +47,7 @@
 
 ## 4. 帧数据格式
 
-![yao-proxy帧设计](/Users/xiaor/Downloads/yao-proxy帧设计.png)
+![yao-proxy帧设计](../img/yao-proxy帧设计.png)
 
 协议规定，发送的第一个包是目标地址，TYPE字段表示这个地址的类型，可以是IPv4，IPv6，Domain其中之一；Data字段表示加密后的地址：加密之前为（host port），最后两字节是端口，前面n字节是host
 
