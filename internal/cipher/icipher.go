@@ -7,6 +7,5 @@ type Cipher interface {
 }
 
 func NewCipher(key []byte) (Cipher, error) {
-	//return NewAes(key)
-	return NewEmpty()
+	return NewAes(key)
 }
