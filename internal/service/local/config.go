@@ -20,6 +20,7 @@ func ReadConfig(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
 	bts, err := io.ReadAll(f)
 	if err != nil {

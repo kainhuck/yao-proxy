@@ -22,6 +22,7 @@ func ReadConfig(path string) *Config {
 	if err != nil {
 		return defaultCfg
 	}
+	defer f.Close()
 
 	bts, err := io.ReadAll(f)
 	if err != nil {
