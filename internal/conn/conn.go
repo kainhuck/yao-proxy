@@ -72,7 +72,7 @@ func EncryptWrite(conn net.Conn, ci cipher.Cipher, data []byte) error {
 
 // EncryptCopy 从src 读出数据 加密后发给dst
 func EncryptCopy(dst net.Conn, src net.Conn, ci cipher.Cipher) error {
-	buff := make([]byte, 1024)
+	buff := make([]byte, 4096)
 	for {
 		n, err := src.Read(buff)
 		if n > 0 {
@@ -92,7 +92,7 @@ func EncryptCopy(dst net.Conn, src net.Conn, ci cipher.Cipher) error {
 
 // DecryptCopy 从src 读出数据 解密后发给dst
 func DecryptCopy(dst net.Conn, src net.Conn, ci cipher.Cipher) error {
-	buff := make([]byte, 1024)
+	buff := make([]byte, 4096)
 	for {
 		n, err := src.Read(buff)
 		if n > 0 {
