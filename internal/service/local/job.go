@@ -46,6 +46,7 @@ func (j *Job) Run() {
 		_ = j.BrowserConn.Close()
 		_ = j.RemoteConn.Close()
 	}()
+	j.logger.Debugf("receive from %v", j.BrowserConn.RemoteAddr())
 
 	errChan := make(chan error, 2)
 	go func() {
