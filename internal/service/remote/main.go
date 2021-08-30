@@ -38,6 +38,7 @@ func Main() {
 				continue
 			}
 
+			log.Printf("[INFO] receive from local agent")
 			job := NewJob(conn, cipher, cfg.Debug)
 			go job.Run()
 		}

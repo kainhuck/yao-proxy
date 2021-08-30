@@ -5,7 +5,7 @@ import (
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
 	"github.com/kainhuck/yao-proxy/internal/log"
-	YPPdu "github.com/kainhuck/yao-proxy/internal/pdu"
+	"io"
 	"net"
 	"time"
 )
@@ -13,8 +13,8 @@ import (
 // Job 每接收一个本地代理的请求，就开启一个任务
 //     任务中包含两个链接，一个和目标网站链接，一个和本地代理链接
 type Job struct {
-	LocalConn  *YPConn.Conn // 和本地代理链接
-	TargetConn net.Conn     // 和目标网站链接
+	LocalConn  net.Conn // 和本地代理链接
+	TargetConn net.Conn // 和目标网站链接
 
 	logger  log.Logger
 	timeout time.Duration
@@ -23,7 +23,7 @@ type Job struct {
 
 func NewJob(c net.Conn, ci YPCipher.Cipher, debug bool) *Job {
 	return &Job{
-		LocalConn: YPConn.NewConn(c),
+		LocalConn: c,
 		logger:    log.NewLogger(debug),
 		timeout:   300 * time.Second,
 		ci:        ci,
@@ -40,45 +40,47 @@ func (j *Job) Run() {
 	defer func() {
 		_ = j.LocalConn.Close()
 	}()
-	data, err := YPConn.Read(j.LocalConn.Conn, j.timeout)
+
+	data, err := YPConn.DecryptRead(j.LocalConn, j.timeout, j.ci)
 	if err != nil {
 		j.logger.Errorf("read from local error: %v", err)
 		return
 	}
 
-	pdu := &YPPdu.PDU{}
-	err = pdu.Decode(data)
-	if err != nil {
-		j.logger.Errorf("Decode error: %v", err)
+	if data[0] != 0x05 {
 		return
 	}
 
-	host, err := j.ci.Decrypt(pdu.Data)
+	err = YPConn.EncryptWrite(j.LocalConn, j.ci, []byte{5, 0})
 	if err != nil {
-		j.logger.Errorf("Decrypt error: %v", err)
+		return
+	}
+
+	data, err = YPConn.DecryptRead(j.LocalConn, j.timeout, j.ci)
+	if err != nil {
 		return
 	}
 
 	var addr *net.TCPAddr
-	switch pdu.Type {
-	case YPPdu.IPv4:
+	switch data[3] {
+	case 1:
 		addr = &net.TCPAddr{
-			IP:   host[:4],
-			Port: int(binary.BigEndian.Uint16(host[4:])),
+			IP:   data[4 : 4+net.IPv4len],
+			Port: int(binary.BigEndian.Uint16(data[len(data)-2:])),
 		}
-	case YPPdu.IPv6:
+	case 4:
 		addr = &net.TCPAddr{
-			IP:   host[:16],
-			Port: int(binary.BigEndian.Uint16(host[16:])),
+			IP:   data[4 : 4+net.IPv6len],
+			Port: int(binary.BigEndian.Uint16(data[len(data)-2:])),
 		}
-	case YPPdu.DOMAIN:
-		ipAddr, err := net.ResolveIPAddr("ip", string(host[:len(host)-2]))
+	case 3:
+		ipAddr, err := net.ResolveIPAddr("ip", string(data[4:len(data)-2]))
 		if err != nil {
 			return
 		}
 		addr = &net.TCPAddr{
 			IP:   ipAddr.IP,
-			Port: int(binary.BigEndian.Uint16(host[len(host)-2:])),
+			Port: int(binary.BigEndian.Uint16(data[len(data)-2:])),
 		}
 	}
 
@@ -92,42 +94,21 @@ func (j *Job) Run() {
 	defer func() {
 		_ = j.TargetConn.Close()
 	}()
-
+	err = YPConn.EncryptWrite(j.LocalConn, j.ci, []byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+	if err != nil {
+		return
+	}
 	j.logger.Debugf("dial remote success")
 
-	go func() {
-		for {
-			select {
-			case data := <-j.LocalConn.CDataChan:
-				rawData, err := j.ci.Decrypt(data)
-				if err != nil {
-					return
-				}
-				j.logger.Debugf("read from local success")
-				_, err = j.TargetConn.Write(rawData)
-				if err != nil {
-					return
-				}
-				j.logger.Debugf("send to target success")
-			}
-		}
-	}()
+	errChan := make(chan error, 2)
+	go func() { errChan <- YPConn.EncryptCopy(j.LocalConn, j.TargetConn, j.ci) }()
+	go func() { errChan <- YPConn.DecryptCopy(j.TargetConn, j.LocalConn, j.ci) }()
 
-	for {
-		data, err := YPConn.Read(j.TargetConn, j.timeout)
-		if err != nil {
-			return
+	select {
+	case err := <-errChan:
+		if err != io.EOF {
+			j.logger.Error(err)
 		}
-		j.logger.Debugf("read from target success")
-		cData, err := j.ci.Encrypt(data)
-		if err != nil {
-			return
-		}
-
-		err = j.LocalConn.Write(0, cData)
-		if err != nil {
-			return
-		}
-		j.logger.Debugf("send to local success")
+		return
 	}
 }

@@ -5,11 +5,11 @@ import (
 	C "crypto/cipher"
 )
 
-type cipher struct {
+type Aes struct {
 	C.Block
 }
 
-func (c *cipher) Encrypt(originData []byte) (cipherData []byte, err error) {
+func (c *Aes) Encrypt(originData []byte) (cipherData []byte, err error) {
 	length := (len(originData) + aes.BlockSize) / aes.BlockSize
 	plain := make([]byte, length*aes.BlockSize)
 	copy(plain, originData)
@@ -26,7 +26,7 @@ func (c *cipher) Encrypt(originData []byte) (cipherData []byte, err error) {
 	return
 }
 
-func (c *cipher) Decrypt(cipherData []byte) (originData []byte, err error) {
+func (c *Aes) Decrypt(cipherData []byte) (originData []byte, err error) {
 	originData = make([]byte, len(cipherData))
 
 	for bs, be := 0, c.BlockSize(); bs < len(cipherData); bs, be = bs+c.BlockSize(), be+c.BlockSize() {
@@ -41,11 +41,11 @@ func (c *cipher) Decrypt(cipherData []byte) (originData []byte, err error) {
 	return originData[:trim], nil
 }
 
-func NewCipher(key []byte) (Cipher, error) {
+func NewAes(key []byte) (Cipher, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
 
-	return &cipher{block}, nil
+	return &Aes{block}, nil
 }
