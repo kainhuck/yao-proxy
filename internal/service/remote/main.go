@@ -7,13 +7,12 @@ import (
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
 	"github.com/kainhuck/yao-proxy/internal/log"
-	"github.com/kainhuck/yao-proxy/internal/utils"
 	"net"
 	"os"
 	"strconv"
 )
 
-var cipher YPCipher.Cipher
+var cipher *YPCipher.Cipher
 var localAddr string
 var logger log.Logger
 
@@ -25,7 +24,7 @@ func init() {
 	flag.Parse()
 	cfg := ReadConfig(configFile)
 
-	cipher, err = YPCipher.NewCipher(utils.MD5(cfg.Key))
+	cipher, err = YPCipher.NewCipher(cfg.Method, cfg.Key)
 	if err != nil {
 		logger.Errorf("new cipher error: %v", err)
 		os.Exit(1)
@@ -114,14 +113,14 @@ func getTargetAddr(conn *YPConn.Conn) (string, error) {
 	var host string
 	switch buff[1] {
 	case 1: // IPv4
-		host = net.IP(buff[2: length]).String()
+		host = net.IP(buff[2:length]).String()
 	case 3: // Domain
-		host = string(buff[2: length])
+		host = string(buff[2:length])
 	case 4: // IPv6
-		host = net.IP(buff[2: length]).String()
+		host = net.IP(buff[2:length]).String()
 	}
 
-	port := binary.BigEndian.Uint16(buff[length:length+2])
+	port := binary.BigEndian.Uint16(buff[length : length+2])
 	host = net.JoinHostPort(host, strconv.Itoa(int(port)))
 
 	return host, nil

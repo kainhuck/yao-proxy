@@ -6,14 +6,13 @@ import (
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
 	"github.com/kainhuck/yao-proxy/internal/log"
-	"github.com/kainhuck/yao-proxy/internal/utils"
 	"io"
 	"net"
 	"os"
 	"time"
 )
 
-var cipher YPCipher.Cipher
+var cipher *YPCipher.Cipher
 var remoteAddr string
 var logger log.Logger
 var localAddr string
@@ -32,7 +31,7 @@ func init() {
 	remoteAddr = fmt.Sprintf("%s:%d", cfg.RemoteHost, cfg.RemotePort)
 	localAddr = fmt.Sprintf(":%d", cfg.Port)
 
-	cipher, err = YPCipher.NewCipher(utils.MD5(cfg.Key))
+	cipher, err = YPCipher.NewCipher(cfg.Method, cfg.Key)
 	if err != nil {
 		logger.Errorf("new cipher error: %v", err)
 		os.Exit(1)
