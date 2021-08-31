@@ -10,6 +10,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"time"
 )
 
 var cipher YPCipher.Cipher
@@ -68,6 +69,7 @@ func handleConn(conn net.Conn) {
 	defer func() {
 		_ = conn.Close()
 	}()
+	_ = conn.SetReadDeadline(time.Now().Add(600 * time.Second))
 	// 1. 握手
 	if err := handShake(conn); err != nil {
 		logger.Errorf("handShake error: %v", err)

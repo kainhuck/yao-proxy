@@ -3,6 +3,7 @@ package conn
 import (
 	"net"
 	"sync"
+	"time"
 )
 
 const bufSize = 65535
@@ -29,6 +30,7 @@ func Copy(dst, src net.Conn) error {
 	defer bufferPoolPut(buff)
 
 	for {
+		_ = src.SetReadDeadline(time.Now().Add(600 * time.Second))
 		n, err := src.Read(buff)
 		if n > 0 {
 			if _, err := dst.Write(buff[:n]); err != nil {
