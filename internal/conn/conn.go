@@ -8,40 +8,48 @@ import (
 type Conn struct {
 	net.Conn
 	YPCipher.Cipher
-	readBuff  []byte
 }
 
 func NewConn(conn net.Conn, cipher YPCipher.Cipher) *Conn {
 	return &Conn{
-		Conn:      conn,
-		Cipher:    cipher,
-		readBuff:  bufferPoolGet(),
+		Conn:   conn,
+		Cipher: cipher,
 	}
 }
 
-func (c *Conn) Close() {
-	bufferPoolPut(c.readBuff)
-	_ = c.Conn.Close()
-}
-
-func (c *Conn) Read(b []byte) (int, error) {
-	cipherData := c.readBuff
-	if len(b) > len(cipherData) {
-		cipherData = make([]byte, len(b))
-	} else {
-		cipherData = cipherData[:len(b)]
+func DialAndSend(addr string, cipher YPCipher.Cipher, data []byte) (*Conn, error) {
+	conn, err := net.Dial("tcp", addr)
+	if err != nil {
+		return nil, err
+	}
+	c := &Conn{
+		Conn:   conn,
+		Cipher: cipher,
 	}
 
-	n, err := c.Conn.Read(cipherData)
+	_, err = c.Write(data)
+
+	return c, err
+}
+
+func (c *Conn) Read(b []byte) (n int, err error) {
+	cipherData := make([]byte, len(b))
+	n, err = c.Conn.Read(cipherData)
 	if n > 0 {
-		data, _ := c.Decrypt(cipherData[:n])
-		copy(b, data)
+		rawData := c.Decrypt(cipherData[:n])
+		if len(rawData) > len(b) {
+			b = make([]byte, len(rawData))
+		}
+
+		copy(b, rawData)
+		n = len(rawData)
 	}
 
-	return len(b), err
+	return
 }
 
-func (c *Conn) Write(b []byte) (int, error) {
-	cipherData, _ := c.Encrypt(b)
+func (c *Conn) Write(b []byte) (n int, err error) {
+	cipherData := c.Encrypt(b)
+
 	return c.Conn.Write(cipherData)
 }

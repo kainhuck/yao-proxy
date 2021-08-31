@@ -9,7 +9,7 @@ type Aes struct {
 	C.Block
 }
 
-func (c *Aes) Encrypt(originData []byte) (cipherData []byte, err error) {
+func (c *Aes) Encrypt(originData []byte) (cipherData []byte) {
 	length := (len(originData) + aes.BlockSize) / aes.BlockSize
 	plain := make([]byte, length*aes.BlockSize)
 	copy(plain, originData)
@@ -26,7 +26,7 @@ func (c *Aes) Encrypt(originData []byte) (cipherData []byte, err error) {
 	return
 }
 
-func (c *Aes) Decrypt(cipherData []byte) (originData []byte, err error) {
+func (c *Aes) Decrypt(cipherData []byte) (originData []byte) {
 	originData = make([]byte, len(cipherData))
 
 	for bs, be := 0, c.BlockSize(); bs < len(cipherData); bs, be = bs+c.BlockSize(), be+c.BlockSize() {
@@ -38,7 +38,7 @@ func (c *Aes) Decrypt(cipherData []byte) (originData []byte, err error) {
 		trim = len(originData) - int(originData[len(originData)-1])
 	}
 
-	return originData[:trim], nil
+	return originData[:trim]
 }
 
 func NewAes(key []byte) (Cipher, error) {

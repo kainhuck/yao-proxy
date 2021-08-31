@@ -40,4 +40,7 @@ make run-remote
 
 ## todo
 
-欢迎补充
+cipher 模块的加解密函数取消error返回，加解密不应该出错只可能由于key不规范引起的panic
+
+对 net.Conn 进行封装，Read()和Write()方法内部完成数据的加解密
+
