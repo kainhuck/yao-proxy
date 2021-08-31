@@ -33,10 +33,8 @@ func DialAndSend(addr string, cipher *YPCipher.Cipher, data []byte) (*Conn, erro
 	if err != nil {
 		return nil, err
 	}
-	c := &Conn{
-		Conn:   conn,
-		Cipher: cipher,
-	}
+
+	c := NewConn(conn, cipher)
 
 	_, err = c.Write(data)
 
