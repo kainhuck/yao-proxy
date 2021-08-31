@@ -60,7 +60,7 @@ func Main() {
 }
 
 func handleConn(conn net.Conn) {
-	localConn := YPConn.NewConn(conn, cipher)
+	localConn := YPConn.NewConn(conn, cipher.Copy())
 	defer func() {
 		_ = localConn.Close()
 	}()

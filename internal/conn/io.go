@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const bufSize = 65536
+const bufSize = 4108
 
 var buffPool sync.Pool
 

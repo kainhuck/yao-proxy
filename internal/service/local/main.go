@@ -130,7 +130,7 @@ func handleConn(conn net.Conn) {
 	}
 
 	// 4. 和远程建立链接并将目标地址发送给远程
-	remoteConn, err := YPConn.DialAndSend(remoteAddr, cipher, addr)
+	remoteConn, err := YPConn.DialAndSend(remoteAddr, cipher.Copy(), addr)
 	if err != nil {
 		logger.Errorf("DialAndSend error: %v", err)
 		return
