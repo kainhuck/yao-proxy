@@ -3,5 +3,6 @@
   "key": "kainhuck",
   "remote_host": "127.0.0.1",
   "remote_port": 20807,
-  "debug": true
+  "debug": true,
+  "method": "aes-128-cfb"
 }

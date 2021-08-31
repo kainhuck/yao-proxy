@@ -1,113 +1,93 @@
 package conn
 
 import (
-	"fmt"
-	"github.com/kainhuck/yao-proxy/internal/cipher"
+	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
+	"io"
 	"net"
-	"sync"
-	"time"
 )
 
-const bufSize = 65535
+type Conn struct {
+	net.Conn
+	*YPCipher.Cipher
+	readBuf  []byte
+	writeBuf []byte
+}
 
-var buffPool sync.Pool
-
-func init() {
-	buffPool.New = func() interface{} {
-		return make([]byte, bufSize)
+func NewConn(conn net.Conn, cipher *YPCipher.Cipher) *Conn {
+	return &Conn{
+		Conn:     conn,
+		Cipher:   cipher,
+		readBuf:  bufferPoolGet(),
+		writeBuf: bufferPoolGet(),
 	}
 }
 
-func bufferPoolGet() []byte {
-	return buffPool.Get().([]byte)
+func (c *Conn) Close() error {
+	bufferPoolPut(c.readBuf)
+	bufferPoolPut(c.writeBuf)
+	return c.Conn.Close()
 }
 
-func bufferPoolPut(b []byte) {
-	buffPool.Put(b)
-}
-
-func DecryptRead(conn net.Conn, timeout time.Duration, ci cipher.Cipher) ([]byte, error) {
-	if conn == nil {
-		return nil, fmt.Errorf("conn is nil")
-	}
-	buff := bufferPoolGet()
-	defer bufferPoolPut(buff)
-	receiveData := make([]byte, 0)
-	receiveSize := 0
-	if timeout > 0 {
-		if err := conn.SetReadDeadline(time.Now().Add(timeout)); err != nil {
-			return nil, err
-		}
-	}
-	for {
-		n, err := conn.Read(buff)
-		if err != nil {
-			return nil, err
-		}
-
-		if n > 0 {
-			receiveSize += n
-			receiveData = append(receiveData, buff[:n]...)
-			if n < bufSize {
-				break
-			}
-		}
-	}
-	response := make([]byte, receiveSize)
-	copy(response, receiveData)
-
-	return ci.Decrypt(response)
-}
-
-func EncryptWrite(conn net.Conn, ci cipher.Cipher, data []byte) error {
-	cipherData, err := ci.Encrypt(data)
+func DialAndSend(addr string, cipher *YPCipher.Cipher, data []byte) (*Conn, error) {
+	conn, err := net.Dial("tcp", addr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = conn.Write(cipherData)
+	c := NewConn(conn, cipher)
 
-	return err
+	_, err = c.Write(data)
+
+	return c, err
 }
 
-// EncryptCopy 从src 读出数据 加密后发给dst
-func EncryptCopy(dst net.Conn, src net.Conn, ci cipher.Cipher) error {
-	buff := bufferPoolGet()
-	defer bufferPoolPut(buff)
-	for {
-		n, err := src.Read(buff)
-		if n > 0 {
-			cipherData, err := ci.Encrypt(buff[:n])
-			if err != nil {
-				return err
-			}
-			_, err = dst.Write(cipherData)
-			if err != nil {
-				return err
-			}
-		} else if err != nil {
-			return err
+func (c *Conn) Read(b []byte) (n int, err error) {
+	if c.Dec == nil {
+		iv := make([]byte, c.Info.IvLen)
+		if _, err = io.ReadFull(c.Conn, iv); err != nil {
+			return
+		}
+		if err = c.InitDecrypt(iv); err != nil {
+			return
 		}
 	}
+
+	cipherData := c.readBuf
+	if len(b) > len(cipherData) {
+		cipherData = make([]byte, len(b))
+	} else {
+		cipherData = cipherData[:len(b)]
+	}
+
+	n, err = c.Conn.Read(cipherData)
+	if n > 0 {
+		c.Decrypt(b[0:n], cipherData[0:n])
+	}
+	return
 }
 
-// DecryptCopy 从src 读出数据 解密后发给dst
-func DecryptCopy(dst net.Conn, src net.Conn, ci cipher.Cipher) error {
-	buff := bufferPoolGet()
-	defer bufferPoolPut(buff)
-	for {
-		n, err := src.Read(buff)
-		if n > 0 {
-			rawData, err := ci.Decrypt(buff[:n])
-			if err != nil {
-				return err
-			}
-			_, err = dst.Write(rawData)
-			if err != nil {
-				return err
-			}
-		} else if err != nil {
-			return err
+func (c *Conn) Write(b []byte) (n int, err error) {
+	var iv []byte
+	if c.Enc == nil {
+		iv, err = c.InitEncrypt()
+		if err != nil {
+			return
 		}
 	}
+
+	cipherData := c.writeBuf
+	dataSize := len(b) + len(iv)
+	if dataSize > len(cipherData) {
+		cipherData = make([]byte, dataSize)
+	} else {
+		cipherData = cipherData[:dataSize]
+	}
+
+	if iv != nil {
+		copy(cipherData, iv)
+	}
+
+	c.Encrypt(cipherData[len(iv):], b)
+	n, err = c.Conn.Write(cipherData)
+	return
 }

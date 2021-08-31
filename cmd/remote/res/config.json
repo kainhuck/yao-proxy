@@ -1,5 +1,6 @@
 {
   "port": 20807,
   "key": "kainhuck",
-  "debug": true
+  "debug": true,
+  "method": "aes-128-cfb"
 }
