@@ -1,0 +1,85 @@
+package remote
+
+import (
+	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
+	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
+	"github.com/kainhuck/yao-proxy/internal/log"
+	"net"
+	"os"
+)
+
+type Server struct {
+	logger    log.Logger
+	localAddr string
+	cipher    *YPCipher.Cipher
+}
+
+func NewServer(localAddr string, logger log.Logger, cipher *YPCipher.Cipher) *Server {
+	return &Server{
+		logger:    logger,
+		localAddr: localAddr,
+		cipher:    cipher,
+	}
+}
+
+func (s *Server) Run() {
+	lis, err := net.Listen("tcp", s.localAddr)
+	if err != nil {
+		s.logger.Errorf("listen failed: %v", err)
+		os.Exit(1)
+	}
+
+	go func() {
+		for {
+			conn, err := lis.Accept()
+			if err != nil {
+				s.logger.Errorf("accept failed: %v", err)
+				continue
+			}
+
+			go s.handleConn(conn)
+		}
+	}()
+
+	s.logger.Infof("listen on %v success", lis.Addr())
+	select {}
+}
+
+func (s *Server) handleConn(conn net.Conn) {
+	localConn := YPConn.NewConn(conn, s.cipher.Copy())
+	defer func() {
+		_ = localConn.Close()
+	}()
+
+	// 1. 读出target地址
+	host, err := getTargetAddr(localConn)
+	if err != nil {
+		s.logger.Errorf("getTargetAddr error: %v", err)
+		return
+	}
+
+	// 2. 和目标地址建立连接
+	targetConn, err := net.Dial("tcp", host)
+	if err != nil {
+		s.logger.Errorf("dial remote error: %v", err)
+		return
+	}
+
+	defer func() {
+		_ = targetConn.Close()
+	}()
+
+	// 3. 转发targetConn和localConn之间的数据
+	errChan := make(chan error, 2)
+	go func() {
+		errChan <- YPConn.Copy(targetConn, localConn)
+	}()
+	go func() {
+		errChan <- YPConn.Copy(localConn, targetConn)
+	}()
+
+	select {
+	case <-errChan:
+		return
+	}
+}

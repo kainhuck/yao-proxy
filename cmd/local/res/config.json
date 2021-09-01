@@ -1,8 +1,16 @@
 {
   "port": 20808,
-  "key": "kainhuck",
-  "remote_host": "127.0.0.1",
-  "remote_port": 20807,
   "debug": true,
-  "method": "aes-128-cfb"
+  "remote_infos": [
+    {
+      "remote_addr": "127.0.0.1:20806",
+      "method": "aes-128-cfb",
+      "key": "atuatuatu"
+    },
+    {
+      "remote_addr": "127.0.0.1:20807",
+      "method": "aes-128-cfb",
+      "key": "kainhuck"
+    }
+  ]
 }

@@ -6,16 +6,24 @@ import (
 	"os"
 )
 
-type Config struct {
+type ServerInfo struct {
 	Port   int    `json:"port"`
 	Key    string `json:"key"`
-	Debug  bool   `json:"debug"`
 	Method string `json:"method"`
 }
 
+type Config struct {
+	Debug       bool         `json:"debug"`
+	ServerInfos []ServerInfo `json:"server_infos"`
+}
+
 var defaultCfg = &Config{
-	Port: 20807,
-	Key:  "Atu@&^_^&Ak1314$$",
+	Debug: false,
+	ServerInfos: []ServerInfo{{
+		Port:   20807,
+		Key:    "Atu@&^_^&Ak1314$$",
+		Method: "aes-128-cfb",
+	}},
 }
 
 func ReadConfig(path string) *Config {
@@ -36,11 +44,9 @@ func ReadConfig(path string) *Config {
 		return defaultCfg
 	}
 
-	if cfg.Port == 0 {
-		cfg.Port = 20807
+	if len(cfg.ServerInfos) == 0 {
+		cfg.ServerInfos = defaultCfg.ServerInfos
 	}
-	if cfg.Key == "" {
-		cfg.Key = "Atu@&^_^&Ak1314$$"
-	}
+
 	return &cfg
 }

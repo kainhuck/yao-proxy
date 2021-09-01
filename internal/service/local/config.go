@@ -7,13 +7,16 @@ import (
 	"os"
 )
 
-type Config struct {
-	Port       int    `json:"port"`
-	Key        string `json:"key"`
-	RemoteHost string `json:"remote_host"`
-	RemotePort int    `json:"remote_port"`
-	Debug      bool   `json:"debug"`
+type RemoteInfo struct {
+	RemoteAddr string `json:"remote_addr"`
 	Method     string `json:"method"`
+	Key        string `json:"key"`
+}
+
+type Config struct {
+	Port        int          `json:"port"`
+	Debug       bool         `json:"debug"`
+	RemoteInfos []RemoteInfo `json:"remote_infos"`
 }
 
 func ReadConfig(path string) (*Config, error) {
@@ -34,17 +37,9 @@ func ReadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	if cfg.RemoteHost == "" {
-		return nil, fmt.Errorf("need remote host")
+	if len(cfg.RemoteInfos) == 0 {
+		return nil, fmt.Errorf("need remote_infos")
 	}
-	if cfg.RemotePort == 0 {
-		cfg.RemotePort = 20807
-	}
-	if cfg.Port == 0 {
-		cfg.Port = 20808
-	}
-	if cfg.Key == "" {
-		cfg.Key = "Atu@&^_^&Ak1314$$"
-	}
+
 	return &cfg, nil
 }
