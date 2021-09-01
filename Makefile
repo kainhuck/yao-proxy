@@ -16,3 +16,11 @@ run-local:
 
 run-remote:
 	$(GO) run ./cmd/remote/main.go -c ./cmd/remote/res/config.json
+
+.PHONY: docker-local docker-remote
+
+docker-local:
+	docker build -t github.com/kainhuck/yao-proxy-local:2.1.1 -f cmd/local/Dockerfile .
+
+docker-remote:
+	docker build -t github.com/kainhuck/yao-proxy-remote:2.1.1 -f cmd/remote/Dockerfile .

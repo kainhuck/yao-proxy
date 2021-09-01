@@ -22,7 +22,19 @@ make run-local
 make run-remote
 ```
 
+## docker 部署
 
+本地代理：
+
+```
+docker run --name yp-proxy --net=host -v <your config path>:/etc/yao-proxy/config.json -d github.com/kainhuck/yao-proxy-local:2.1.1 
+```
+
+远程代理：
+
+```
+docker run --name yp-proxy --net=host -v <your config path>:/etc/yao-proxy/config.json -d github.com/kainhuck/yao-proxy-remote:2.1.1 
+```
 
 ## 贡献代码
 
@@ -40,5 +52,5 @@ make run-remote
 
 ## todo
 
-远程同时监听多个端口，本地代理可以可以配置多个远程端口
+增加docker部署方式 👌🏻
 
