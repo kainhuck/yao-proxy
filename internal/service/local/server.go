@@ -257,7 +257,7 @@ func (s *Server) getTargetAddr(conn net.Conn) ([]byte, error) {
 	case 4: // IPV6
 		addr = make([]byte, net.IPv6len+4)
 		addr[0] = net.IPv6len + 2
-		addr[1] = 1
+		addr[1] = 4
 		addr[2] = head[4]
 		if _, err := io.ReadFull(conn, addr[3:]); err != nil {
 			return nil, err
