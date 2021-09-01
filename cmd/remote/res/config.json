@@ -1,6 +1,10 @@
 {
-  "port": 20807,
-  "key": "kainhuck",
   "debug": true,
-  "method": "aes-128-cfb"
+  "server_infos": [
+    {
+      "method": "aes-128-cfb",
+      "port": 20807,
+      "key": "kainhuck"
+    }
+  ]
 }

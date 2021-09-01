@@ -10,92 +10,36 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"sync"
 )
 
-var cipher *YPCipher.Cipher
-var localAddr string
-var logger log.Logger
-
-func init() {
-	var err error
+func Main() {
 	// 参数
 	var configFile string
 	flag.StringVar(&configFile, "c", "/etc/yao-proxy/config.json", "go run main.go -c configFile")
 	flag.Parse()
 	cfg := ReadConfig(configFile)
 
-	cipher, err = YPCipher.NewCipher(cfg.Method, cfg.Key)
-	if err != nil {
-		logger.Errorf("new cipher error: %v", err)
-		os.Exit(1)
-	}
+	logger := log.NewLogger(cfg.Debug)
 
-	localAddr = fmt.Sprintf(":%d", cfg.Port)
-
-	logger = log.NewLogger(cfg.Debug)
-}
-
-func Main() {
-	// 启动服务
-	lis, err := net.Listen("tcp", localAddr)
-	if err != nil {
-		logger.Errorf("listen failed: %v", err)
-		os.Exit(1)
-	}
-
-	go func() {
-		for {
-			conn, err := lis.Accept()
-			if err != nil {
-				logger.Errorf("accept failed: %v", err)
-				continue
-			}
-
-			go handleConn(conn)
+	var wg sync.WaitGroup
+	for _, info := range cfg.ServerInfos {
+		localAddr := fmt.Sprintf(":%d", info.Port)
+		cipher, err := YPCipher.NewCipher(info.Method, info.Key)
+		if err != nil {
+			logger.Errorf("new cipher error: %v", err)
+			os.Exit(1)
 		}
-	}()
 
-	logger.Infof("listen on %v success", lis.Addr())
-	select {}
-}
-
-func handleConn(conn net.Conn) {
-	localConn := YPConn.NewConn(conn, cipher.Copy())
-	defer func() {
-		_ = localConn.Close()
-	}()
-
-	// 1. 读出target地址
-	host, err := getTargetAddr(localConn)
-	if err != nil {
-		logger.Errorf("getTargetAddr error: %v", err)
-		return
+		server := NewServer(localAddr, logger, cipher)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			server.Run()
+		}()
 	}
 
-	// 2. 和目标地址建立连接
-	targetConn, err := net.Dial("tcp", host)
-	if err != nil {
-		logger.Errorf("dial remote error: %v", err)
-		return
-	}
-
-	defer func() {
-		_ = targetConn.Close()
-	}()
-
-	// 3. 转发targetConn和localConn之间的数据
-	errChan := make(chan error, 2)
-	go func() {
-		errChan <- YPConn.Copy(targetConn, localConn)
-	}()
-	go func() {
-		errChan <- YPConn.Copy(localConn, targetConn)
-	}()
-
-	select {
-	case <-errChan:
-		return
-	}
+	wg.Wait()
 }
 
 // 获取目标地址 string 类型
