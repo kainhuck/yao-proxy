@@ -13,36 +13,56 @@ import (
 type CipherRemote struct {
 	cipher     *YPCipher.Cipher
 	RemoteAddr string
+	next       *CipherRemote
 }
 
 type Server struct {
 	logger        log.Logger
 	localAddr     string
-	cipherRemotes []CipherRemote
+	cipherRemotes *CipherRemote
 	index         int
 	crLength      int
 }
 
 func NewServer(localAddr string, logger log.Logger, infos []RemoteInfo) *Server {
 	s := &Server{
-		logger:        logger,
-		localAddr:     localAddr,
-		cipherRemotes: make([]CipherRemote, len(infos)),
-		crLength:      len(infos),
-		index:         0,
+		logger:    logger,
+		localAddr: localAddr,
+		crLength:  len(infos),
+		index:     0,
 	}
 
-	for i, info := range infos {
-		cipher, err := YPCipher.NewCipher(info.Method, info.Key)
+	// infos 不可能为 0
+	cipher, err := YPCipher.NewCipher(infos[0].Method, infos[0].Key)
+	if err != nil {
+		s.logger.Errorf("new cipher error: %v", err)
+		os.Exit(1)
+	}
+
+	cr := &CipherRemote{
+		cipher:     cipher,
+		RemoteAddr: infos[0].RemoteAddr,
+		next:       nil,
+	}
+
+	s.cipherRemotes = cr
+
+	for i := 1; i < s.crLength; i++ {
+		cipher, err := YPCipher.NewCipher(infos[i].Method, infos[i].Key)
 		if err != nil {
 			s.logger.Errorf("new cipher error: %v", err)
 			os.Exit(1)
 		}
-		s.cipherRemotes[i] = CipherRemote{
+		cr.next = &CipherRemote{
 			cipher:     cipher,
-			RemoteAddr: info.RemoteAddr,
+			RemoteAddr: infos[i].RemoteAddr,
+			next:       nil,
 		}
+
+		cr = cr.next
 	}
+
+	cr.next = s.cipherRemotes
 
 	return s
 }
@@ -71,7 +91,7 @@ func (s *Server) Run() {
 	select {}
 }
 
-func (s *Server) handleConn(conn net.Conn, cr CipherRemote) {
+func (s *Server) handleConn(conn net.Conn, cr *CipherRemote) {
 	defer func() {
 		_ = conn.Close()
 	}()
@@ -268,11 +288,8 @@ func (s *Server) getTargetAddr(conn net.Conn) ([]byte, error) {
 }
 
 // 顺序选择一个远程服务器
-func (s *Server) getCipherRemote() CipherRemote {
-	s.index++
-	if s.index > len(s.cipherRemotes) {
-		s.index = 1
-	}
+func (s *Server) getCipherRemote() *CipherRemote {
+	s.cipherRemotes = s.cipherRemotes.next
 
-	return s.cipherRemotes[s.index-1]
+	return s.cipherRemotes
 }
