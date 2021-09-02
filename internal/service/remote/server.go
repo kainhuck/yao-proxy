@@ -63,7 +63,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	// 2. 和目标地址建立连接
 	targetConn, err := net.Dial("tcp", host)
 	if err != nil {
-		s.logger.Errorf("dial remote error: %v", err)
+		s.logger.Errorf("dial target error: %v", err)
 		return
 	}
 
