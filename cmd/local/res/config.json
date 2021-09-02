@@ -3,6 +3,16 @@
   "debug": true,
   "remote_infos": [
     {
+      "remote_addr": "127.0.0.1:20804",
+      "method": "aes-128-cfb",
+      "key": "atuatuatu"
+    },
+    {
+      "remote_addr": "127.0.0.1:20805",
+      "method": "aes-128-cfb",
+      "key": "atuatuatu"
+    },
+    {
       "remote_addr": "127.0.0.1:20806",
       "method": "aes-128-cfb",
       "key": "atuatuatu"
