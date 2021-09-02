@@ -31,17 +31,17 @@ make run-remote
 本地代理：
 
 ```
-docker pull docker.pkg.github.com/kainhuck/yao-proxy/local:2.1.1
+docker pull docker.pkg.github.com/kainhuck/yao-proxy/local
 
-docker run --name yp-proxy --net=host -v <your config path>:/etc/yao-proxy/config.json -d github.com/kainhuck/yao-proxy-local:2.1.1 
+docker run --name yp-proxy --net=host -v <your config path>:/etc/yao-proxy/config.json -d github.com/kainhuck/yao-proxy-local
 ```
 
 远程代理：
 
 ```
-docker pull docker.pkg.github.com/kainhuck/yao-proxy/remote:2.1.1
+docker pull docker.pkg.github.com/kainhuck/yao-proxy/remote
 
-docker run --name yp-proxy --net=host -v <your config path>:/etc/yao-proxy/config.json -d github.com/kainhuck/yao-proxy-remote:2.1.1 
+docker run --name yp-proxy --net=host -v <your config path>:/etc/yao-proxy/config.json -d github.com/kainhuck/yao-proxy-remote
 ```
 
 ## 配置文件示例
