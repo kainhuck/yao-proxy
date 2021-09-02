@@ -310,7 +310,7 @@ func (s *Server) getCipherRemote() *CipherRemote {
 
 func (s *Server) getRemoteConn() *YPConn.Conn{
 	cr := s.getCipherRemote()
-	conn, err := YPConn.Dial(cr.RemoteAddr, cr.cipher)
+	conn, err := YPConn.Dial(cr.RemoteAddr, cr.cipher.Copy())
 	if err != nil {
 		return s.getRemoteConn()
 	}
