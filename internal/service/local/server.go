@@ -31,7 +31,7 @@ func NewServer(localAddr string, logger log.Logger, infos []RemoteInfo) *Server 
 		localAddr:  localAddr,
 		crLength:   len(infos),
 		index:      0,
-		remoteChan: make(chan *YPConn.Conn, 10),
+		remoteChan: make(chan *YPConn.Conn),
 	}
 
 	// infos 不可能为 0
