@@ -44,6 +44,12 @@ docker pull docker.pkg.github.com/kainhuck/yao-proxy/remote:2.1.1
 docker run --name yp-proxy --net=host -v <your config path>:/etc/yao-proxy/config.json -d github.com/kainhuck/yao-proxy-remote:2.1.1 
 ```
 
+## 配置文件示例
+
+[local-config](cmd/local/res/config.json)
+
+[remote-config](cmd/remote/res/config.json)
+
 ## 贡献代码
 
 `main`分支为最新稳定分支
