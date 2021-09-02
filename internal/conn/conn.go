@@ -41,6 +41,12 @@ func DialAndSend(addr string, cipher *YPCipher.Cipher, data []byte) (*Conn, erro
 	return c, err
 }
 
+func Dial(addr string, cipher *YPCipher.Cipher) (*Conn, error) {
+	conn, err := net.Dial("tcp", addr)
+
+	return NewConn(conn, cipher), err
+}
+
 func (c *Conn) Read(b []byte) (n int, err error) {
 	if c.Dec == nil {
 		iv := make([]byte, c.Info.IvLen)
