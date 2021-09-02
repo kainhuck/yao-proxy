@@ -68,3 +68,4 @@ docker run --name yp-proxy --net=host -v <your config path>:/etc/yao-proxy/confi
 
 增加docker部署方式 👌🏻
 
+利用context来管理上下文，控制优雅的退出
