@@ -158,7 +158,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	remoteConn := new(YPConn.Conn)
 	select {
 	case remoteConn = <-s.remoteChan:
-	case <-time.After(5 * time.Second):
+	case <-time.After(10 * time.Second):
 		s.logger.Errorf("dial remote time out")
 		return
 	}
@@ -302,7 +302,7 @@ func (s *Server) getCipherRemote() *CipherRemote {
 
 func (s *Server) getRemoteConn() *YPConn.Conn {
 	cr := s.getCipherRemote()
-	conn, err := YPConn.Dial(cr.RemoteAddr, cr.cipher.Copy())
+	conn, err := YPConn.Dial(cr.RemoteAddr, cr.cipher.Copy(), 10 * time.Second)
 	if err != nil {
 		return s.getRemoteConn()
 	}
