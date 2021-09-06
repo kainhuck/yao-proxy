@@ -33,7 +33,7 @@ make run-remote
 ```
 docker pull docker.pkg.github.com/kainhuck/yao-proxy/local:latest
 
-docker run --name yp-proxy --net=host --restart=always -v <your config path>:/etc/yao-proxy/config.json -d docker.pkg.github.com/kainhuck/yao-proxy/local:latest
+docker run --name yao-proxy --net=host --restart=always -v <your config path>:/etc/yao-proxy/config.json -d docker.pkg.github.com/kainhuck/yao-proxy/local:latest
 ```
 
 远程代理：
@@ -41,7 +41,7 @@ docker run --name yp-proxy --net=host --restart=always -v <your config path>:/et
 ```
 docker pull docker.pkg.github.com/kainhuck/yao-proxy/remote:latest
 
-docker run --name yp-proxy --net=host --restart=always -v <your config path>:/etc/yao-proxy/config.json -d docker.pkg.github.com/kainhuck/yao-proxy/remote:latest
+docker run --name yao-proxy --net=host --restart=always -v <your config path>:/etc/yao-proxy/config.json -d docker.pkg.github.com/kainhuck/yao-proxy/remote:latest
 ```
 
 ## 配置文件示例
