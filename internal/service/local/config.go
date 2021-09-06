@@ -13,10 +13,14 @@ type RemoteInfo struct {
 	Key        string `json:"key"`
 }
 
-type Config struct {
+type ServerInfo struct {
 	Port        int          `json:"port"`
-	Debug       bool         `json:"debug"`
 	RemoteInfos []RemoteInfo `json:"remote_infos"`
+}
+
+type Config struct {
+	Debug       bool         `json:"debug"`
+	ServerInfos []ServerInfo `json:"server_infos"`
 }
 
 func ReadConfig(path string) (*Config, error) {
@@ -37,8 +41,8 @@ func ReadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	if len(cfg.RemoteInfos) == 0 {
-		return nil, fmt.Errorf("need remote_infos")
+	if len(cfg.ServerInfos) == 0 {
+		return nil, fmt.Errorf("need server_infos")
 	}
 
 	return &cfg, nil
