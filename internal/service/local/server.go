@@ -165,9 +165,9 @@ func (s *Server) handleConn(conn net.Conn) {
 	// 4. 和远程建立链接并将目标地址发送给远程
 	remoteConn := new(YPConn.Conn)
 	select {
-	case remoteConn = <- s.remoteChan:
-	case <- time.After(5 * time.Second):
-		s.logger.Errorf("time out")
+	case remoteConn = <-s.remoteChan:
+	case <-time.After(5 * time.Second):
+		s.logger.Errorf("dial remote time out")
 		return
 	}
 
@@ -308,7 +308,7 @@ func (s *Server) getCipherRemote() *CipherRemote {
 	return s.cipherRemotes
 }
 
-func (s *Server) getRemoteConn() *YPConn.Conn{
+func (s *Server) getRemoteConn() *YPConn.Conn {
 	cr := s.getCipherRemote()
 	conn, err := YPConn.Dial(cr.RemoteAddr, cr.cipher.Copy())
 	if err != nil {

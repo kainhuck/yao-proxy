@@ -1,26 +1,55 @@
 {
-  "port": 20808,
   "debug": true,
-  "remote_infos": [
+  "server_infos": [
     {
-      "remote_addr": "127.0.0.1:20804",
-      "method": "aes-128-cfb",
-      "key": "atuatuatu"
+      "port": 20808,
+      "remote_infos": [
+        {
+          "remote_addr": "127.0.0.1:20804",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20805",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20806",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20807",
+          "method": "aes-128-cfb",
+          "key": "kainhuck"
+        }
+      ]
     },
     {
-      "remote_addr": "127.0.0.1:20805",
-      "method": "aes-128-cfb",
-      "key": "atuatuatu"
-    },
-    {
-      "remote_addr": "127.0.0.1:20806",
-      "method": "aes-128-cfb",
-      "key": "atuatuatu"
-    },
-    {
-      "remote_addr": "127.0.0.1:20807",
-      "method": "aes-128-cfb",
-      "key": "kainhuck"
+      "port": 20809,
+      "remote_infos": [
+        {
+          "remote_addr": "127.0.0.1:20804",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20805",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20806",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20807",
+          "method": "aes-128-cfb",
+          "key": "kainhuck"
+        }
+      ]
     }
   ]
 }

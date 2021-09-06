@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kainhuck/yao-proxy/internal/log"
 	"os"
+	"sync"
 )
 
 func Main() {
@@ -19,8 +20,20 @@ func Main() {
 	}
 
 	logger := log.NewLogger(cfg.Debug)
-	localAddr := fmt.Sprintf(":%d", cfg.Port)
+	var wg sync.WaitGroup
 
-	server := NewServer(localAddr, logger, cfg.RemoteInfos)
-	server.Run()
+	for _, info := range cfg.ServerInfos {
+		localAddr := fmt.Sprintf(":%d", info.Port)
+
+		server := NewServer(localAddr, logger, info.RemoteInfos)
+
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+			server.Run()
+		}()
+	}
+
+	wg.Wait()
 }
