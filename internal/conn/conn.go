@@ -4,6 +4,7 @@ import (
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	"io"
 	"net"
+	"time"
 )
 
 type Conn struct {
@@ -41,8 +42,8 @@ func DialAndSend(addr string, cipher *YPCipher.Cipher, data []byte) (*Conn, erro
 	return c, err
 }
 
-func Dial(addr string, cipher *YPCipher.Cipher) (*Conn, error) {
-	conn, err := net.Dial("tcp", addr)
+func Dial(addr string, cipher *YPCipher.Cipher, timeout time.Duration) (*Conn, error) {
+	conn, err := net.DialTimeout("tcp", addr, timeout)
 
 	return NewConn(conn, cipher), err
 }
