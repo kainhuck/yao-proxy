@@ -167,7 +167,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	select {
 	case remoteConn = <- s.remoteChan:
 	case <- time.After(5 * time.Second):
-		s.logger.Errorf("time out")
+		s.logger.Errorf("dial remote time out")
 		return
 	}
 
