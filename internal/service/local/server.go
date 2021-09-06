@@ -143,14 +143,6 @@ func (s *Server) handleConn(conn net.Conn) {
 		             o  X'09' to X'FF' unassigned
 		          o  RSV    RESERVED
 		          o  ATYP   address type of following address
-
-
-
-		Leech, et al                Standards Track                     [Page 5]
-
-		RFC 1928                SOCKS Protocol Version 5              March 1996
-
-
 		             o  IP V4 address: X'01'
 		             o  DOMAINNAME: X'03'
 		             o  IP V6 address: X'04'
