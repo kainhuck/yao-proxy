@@ -66,9 +66,9 @@ docker run --name yp-proxy --net=host --restart=always -v <your config path>:/et
 
 ## todo
 
-增加docker部署方式 👌🏻
+1. 使用systemd来部署服务
 
-利用context来管理上下文，控制优雅的退出
+2. 实现cli来安装部署remote，以及生成local的配置文件
 
 
 
