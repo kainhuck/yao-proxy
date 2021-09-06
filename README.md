@@ -1,6 +1,6 @@
 # yao-proxy
 
-![GitHub](https://img.shields.io/github/license/kainhuck/yao-proxy)![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainhuck/yao-proxy)![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/kainhuck/yao-proxy)
+![GitHub](https://img.shields.io/github/license/kainhuck/yao-proxy) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainhuck/yao-proxy) ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/kainhuck/yao-proxy)
 
 ## 介绍
 
