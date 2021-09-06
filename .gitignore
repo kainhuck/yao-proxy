@@ -1,1 +1,5 @@
 .idea
+
+# 编译出来的可执行文件
+./cmd/local/yp-local
+./cmd/remote/yp-remote
