@@ -24,3 +24,9 @@ docker-local:
 
 docker-remote:
 	docker build -t docker.pkg.github.com/kainhuck/yao-proxy/remote -f cmd/remote/Dockerfile .
+
+# build and push docker
+.PHONY: docker-all
+
+docker-all:
+	./bin/docker-build.sh all
