@@ -17,13 +17,13 @@ var PrintCmd = &cmd.Command{
 		switch args[0] {
 		case "local", "remote":
 		default:
-			CLI.Printf("unknown field `%s`\n", args[0])
+			CLI.Printf("unknown field `%s`\n", CLI.Red(args[0]))
 			return
 		}
 
 		file, ok := CLI.Load(args[0])
 		if !ok {
-			CLI.Println("请先生成`%s`的配置文件!", args[0])
+			CLI.Printf("请先生成`%s`的配置文件!\n", CLI.Cyan(args[0]))
 			return
 		}
 
