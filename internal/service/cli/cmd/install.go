@@ -9,6 +9,13 @@ import (
 	"github.com/kainhuck/yao-proxy/internal/service/remote"
 )
 
+/*
+todo:
+	1. 获取服务端的IP地址
+	2. 生成local端的配置文件
+	3. 完成systemd部署或二进制文件部署（需要获取服务器的信息，需要提前准备好对应的二进制文件）
+*/
+
 var InstallCmd = &cmd.Command{
 	Cmd:   "install",
 	Usage: "install",
