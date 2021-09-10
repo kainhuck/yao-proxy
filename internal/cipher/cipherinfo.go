@@ -15,7 +15,7 @@ type cipherInfo struct {
 	NewStream func(key, iv []byte, doe DecOrEnc) (cipher.Stream, error)
 }
 
-var cipherMethod = map[string]*cipherInfo{
+var Methods = map[string]*cipherInfo{
 	"aes-128-cfb": {16, 16, newAESCFBStream},
 	"aes-192-cfb": {24, 16, newAESCFBStream},
 	"aes-256-cfb": {32, 16, newAESCFBStream},

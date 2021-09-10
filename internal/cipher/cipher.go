@@ -20,7 +20,7 @@ func NewCipher(method, password string) (c *Cipher, err error) {
 	if password == "" {
 		return nil, fmt.Errorf("password is empty")
 	}
-	mi, ok := cipherMethod[method]
+	mi, ok := Methods[method]
 	if !ok {
 		return nil, errors.New("Unsupported encryption method: " + method)
 	}
