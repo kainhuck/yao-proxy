@@ -7,12 +7,12 @@ import (
 )
 
 var ListCmd = &cmd.Command{
-	Cmd:     "list",
-	Usage:   "list",
-	Desc:    "list all supported encrypt method",
+	Cmd:   "list",
+	Usage: "list",
+	Desc:  "list all supported encrypt method",
 	Handler: func(args ...string) {
 		index := 1
-		for k := range cipher.Methods{
+		for k := range cipher.Methods {
 			CLI.Printf(" %d. %s\n", index, CLI.Blue(k))
 			index++
 		}

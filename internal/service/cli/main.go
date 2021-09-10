@@ -8,10 +8,13 @@ import (
 func Main() {
 	cli := CLI.DefaultCli()
 	cli.SetWelcomeMsg(logo)
+
 	cli.Register(cmd.ListCmd)
+	cli.Register(cmd.PrintCmd)
+	cli.Register(cmd.InstallCmd)
+
 	cli.Run()
 }
-
 
 var logo = `██╗   ██╗ █████╗  ██████╗ 
 ╚██╗ ██╔╝██╔══██╗██╔═══██╗
