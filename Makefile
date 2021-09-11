@@ -17,7 +17,10 @@ build-all-platform:
 	./bin/go_build_all.py -o ./output/local cmd/local/main.go
 	./bin/go_build_all.py -o ./output/remote cmd/remote/main.go
 
-.PHONY: run-local run-remote
+.PHONY: run-local run-remote run-cli
+
+run-cli:
+	$(GO) run ./cmd/cli/main.go
 
 run-local:
 	$(GO) run ./cmd/local/main.go -c ./cmd/local/res/config.json
