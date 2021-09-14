@@ -16,6 +16,7 @@ type RemoteInfo struct {
 type ServerInfo struct {
 	Port        int          `json:"port"`
 	RemoteInfos []RemoteInfo `json:"remote_infos"`
+	NoProxy     []string     `json:"no_proxy"`
 }
 
 type Config struct {

@@ -1,12 +1,14 @@
 package local
 
 import (
+	"encoding/binary"
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
 	"github.com/kainhuck/yao-proxy/internal/log"
 	"io"
 	"net"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -23,15 +25,17 @@ type Server struct {
 	index         int
 	crLength      int
 	remoteChan    chan *YPConn.Conn
+	filter        *Filter
 }
 
-func NewServer(localAddr string, logger log.Logger, infos []RemoteInfo) *Server {
+func NewServer(localAddr string, logger log.Logger, infos []RemoteInfo, filter *Filter) *Server {
 	s := &Server{
 		logger:     logger,
 		localAddr:  localAddr,
 		crLength:   len(infos),
 		index:      0,
 		remoteChan: make(chan *YPConn.Conn),
+		filter:     filter,
 	}
 
 	// infos 不可能为 0
@@ -108,82 +112,95 @@ func (s *Server) handleConn(conn net.Conn) {
 		return
 	}
 	// 2. 获取真实的地址
-	addr, err := s.getTargetAddr(conn)
+	addr, host, err := s.getTargetAddr(conn)
 	if err != nil {
 		s.logger.Errorf("getTargetAddr error: %v", err)
 		return
 	}
 
 	// 3. 给浏览器发送成功响应
-	/*
-	 The SOCKS request information is sent by the client as soon as it has
-	   established a connection to the SOCKS server, and completed the
-	   authentication negotiations.  The server evaluates the request, and
-	   returns a reply formed as follows:
-
-	        +----+-----+-------+------+----------+----------+
-	        |VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
-	        +----+-----+-------+------+----------+----------+
-	        | 1  |  1  | X'00' |  1   | Variable |    2     |
-	        +----+-----+-------+------+----------+----------+
-
-	     Where:
-
-	          o  VER    protocol version: X'05'
-	          o  REP    Reply field:
-	             o  X'00' succeeded
-	             o  X'01' general SOCKS server failure
-	             o  X'02' connection not allowed by ruleset
-	             o  X'03' Network unreachable
-	             o  X'04' Host unreachable
-	             o  X'05' Connection refused
-	             o  X'06' TTL expired
-	             o  X'07' Command not supported
-	             o  X'08' Address type not supported
-	             o  X'09' to X'FF' unassigned
-	          o  RSV    RESERVED
-	          o  ATYP   address type of following address
-	             o  IP V4 address: X'01'
-	             o  DOMAINNAME: X'03'
-	             o  IP V6 address: X'04'
-	          o  BND.ADDR       server bound address
-	          o  BND.PORT       server bound port in network octet order
-	*/
-	if _, err := conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}); err != nil {
-		s.logger.Errorf("reply to browser error: %v", err)
-		return
-	}
-
-	// 4. 和远程建立链接并将目标地址发送给远程
-	remoteConn := new(YPConn.Conn)
-	select {
-	case remoteConn = <-s.remoteChan:
-	case <-time.After(10 * time.Second):
-		s.logger.Errorf("dial remote time out")
-		return
-	}
-
-	_, err = remoteConn.Write(addr)
-	if err != nil {
-		s.logger.Errorf("DialAndSend error: %v", err)
-		return
-	}
-	defer func() {
-		_ = remoteConn.Close()
-	}()
-
-	// 5. 将RemoteConn的数据和conn的数据进行转发
-	errChan := make(chan error, 2)
 	go func() {
-		errChan <- YPConn.Copy(remoteConn, conn)
-	}()
-	go func() {
-		errChan <- YPConn.Copy(conn, remoteConn)
+		/*
+		 The SOCKS request information is sent by the client as soon as it has
+		   established a connection to the SOCKS server, and completed the
+		   authentication negotiations.  The server evaluates the request, and
+		   returns a reply formed as follows:
+
+		        +----+-----+-------+------+----------+----------+
+		        |VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
+		        +----+-----+-------+------+----------+----------+
+		        | 1  |  1  | X'00' |  1   | Variable |    2     |
+		        +----+-----+-------+------+----------+----------+
+
+		     Where:
+
+		          o  VER    protocol version: X'05'
+		          o  REP    Reply field:
+		             o  X'00' succeeded
+		             o  X'01' general SOCKS server failure
+		             o  X'02' connection not allowed by ruleset
+		             o  X'03' Network unreachable
+		             o  X'04' Host unreachable
+		             o  X'05' Connection refused
+		             o  X'06' TTL expired
+		             o  X'07' Command not supported
+		             o  X'08' Address type not supported
+		             o  X'09' to X'FF' unassigned
+		          o  RSV    RESERVED
+		          o  ATYP   address type of following address
+		             o  IP V4 address: X'01'
+		             o  DOMAINNAME: X'03'
+		             o  IP V6 address: X'04'
+		          o  BND.ADDR       server bound address
+		          o  BND.PORT       server bound port in network octet order
+		*/
+		if _, err := conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}); err != nil {
+			s.logger.Errorf("reply to browser error: %v", err)
+			return
+		}
 	}()
 
-	select {
-	case <-errChan:
-		return
+	if !s.filter.Check(host) {
+		// 4. 和远程建立链接并将目标地址发送给远程
+		remoteConn := new(YPConn.Conn)
+		select {
+		case remoteConn = <-s.remoteChan:
+		case <-time.After(10 * time.Second):
+			s.logger.Errorf("dial remote time out")
+			return
+		}
+
+		_, err = remoteConn.Write(addr)
+		if err != nil {
+			s.logger.Errorf("DialAndSend error: %v", err)
+			return
+		}
+		defer func() {
+			_ = remoteConn.Close()
+		}()
+
+		// 5. 将RemoteConn的数据和conn的数据进行转发
+		YPConn.Forward(remoteConn, conn)
+	} else {
+		go func() {
+			remoteConn := <-s.remoteChan
+			_ = remoteConn.Close() // 走本地，关闭远程链接
+		}()
+
+		// 直接访问目标地址
+
+		targetConn, err := net.Dial("tcp", host)
+		if err != nil {
+			s.logger.Errorf("dial target error: %v", err)
+			return
+		}
+
+		defer func() {
+			_ = targetConn.Close()
+		}()
+
+		// 3. 转发targetConn和localConn之间的数据
+		YPConn.Forward(targetConn, conn)
 	}
 }
 
@@ -231,7 +248,7 @@ func (s *Server) handShake(conn net.Conn) error {
 	return err
 }
 
-func (s *Server) getTargetAddr(conn net.Conn) ([]byte, error) {
+func (s *Server) getTargetAddr(conn net.Conn) ([]byte, string, error) {
 	/*
 		The SOCKS request is formed as follows:
 
@@ -259,10 +276,11 @@ func (s *Server) getTargetAddr(conn net.Conn) ([]byte, error) {
 	*/
 	head := make([]byte, 5)
 	if _, err := io.ReadFull(conn, head); err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	var addr []byte
+	var host string
 	// 判断类型
 	switch head[3] {
 	case 1: // IPV4
@@ -271,26 +289,32 @@ func (s *Server) getTargetAddr(conn net.Conn) ([]byte, error) {
 		addr[1] = 1
 		addr[2] = head[4]
 		if _, err := io.ReadFull(conn, addr[3:]); err != nil {
-			return nil, err
+			return nil, "", err
 		}
+		host = net.IP(addr[2:addr[0]]).String()
 	case 3: // Domain
 		addr = make([]byte, head[4]+4)
 		addr[0] = head[4] + 2
 		addr[1] = 3
 		if _, err := io.ReadFull(conn, addr[2:]); err != nil {
-			return nil, err
+			return nil, "", err
 		}
+		host = string(addr[2:addr[0]])
 	case 4: // IPV6
 		addr = make([]byte, net.IPv6len+4)
 		addr[0] = net.IPv6len + 2
 		addr[1] = 4
 		addr[2] = head[4]
 		if _, err := io.ReadFull(conn, addr[3:]); err != nil {
-			return nil, err
+			return nil, "", err
 		}
+		host = net.IP(addr[2:addr[0]]).String()
 	}
 
-	return addr, nil
+	port := binary.BigEndian.Uint16(addr[addr[0] : addr[0]+2])
+	host = net.JoinHostPort(host, strconv.Itoa(int(port)))
+
+	return addr, host, nil
 }
 
 // 顺序选择一个远程服务器
