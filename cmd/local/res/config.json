@@ -5,34 +5,58 @@
       "port": 20808,
       "remote_infos": [
         {
-          "remote_addr": "34.126.179.156:20800",
-          "method": "aes-128-cfb",
-          "key": "nasduiu12cas"
-        },
-        {
-          "remote_addr": "34.126.179.156:20801",
-          "method": "aes-128-cfb",
-          "key": "atu08cas^&*%HSAD"
-        },
-        {
-          "remote_addr": "34.126.179.156:20802",
+          "remote_addr": "127.0.0.1:20804",
           "method": "aes-128-cfb",
           "key": "atuatuatu"
         },
         {
-          "remote_addr": "34.126.179.156:20803",
+          "remote_addr": "127.0.0.1:20805",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20806",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20807",
           "method": "aes-128-cfb",
           "key": "kainhuck"
         }
       ],
       "no_proxy": [
-        "192.168.1.177",
         "baidu.com",
+        "192.168.1.x"
+      ]
+    },
+    {
+      "port": 20809,
+      "remote_infos": [
+        {
+          "remote_addr": "127.0.0.1:20804",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20805",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20806",
+          "method": "aes-128-cfb",
+          "key": "atuatuatu"
+        },
+        {
+          "remote_addr": "127.0.0.1:20807",
+          "method": "aes-128-cfb",
+          "key": "kainhuck"
+        }
+      ],
+      "no_proxy": [
         "eastmoney.com",
-        "192.168.1.x",
-        "192.168.x.1",
-        "192.168.x.x",
-        "192.168.1.1-192.168.1.10"
+        "192.168.2.x"
       ]
     }
   ]
