@@ -118,8 +118,6 @@ func (s *Server) handleConn(conn net.Conn) {
 		return
 	}
 
-	s.logger.Debugf("host: %s", host)
-
 	// 3. 给浏览器发送成功响应
 	go func() {
 		/*
