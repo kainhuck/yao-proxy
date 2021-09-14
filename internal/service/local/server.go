@@ -182,18 +182,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		}()
 
 		// 5. 将RemoteConn的数据和conn的数据进行转发
-		errChan := make(chan error, 2)
-		go func() {
-			errChan <- YPConn.Copy(remoteConn, conn)
-		}()
-		go func() {
-			errChan <- YPConn.Copy(conn, remoteConn)
-		}()
-
-		select {
-		case <-errChan:
-			return
-		}
+		YPConn.Forward(remoteConn, conn)
 	} else {
 		go func() {
 			remoteConn := <-s.remoteChan
@@ -213,21 +202,8 @@ func (s *Server) handleConn(conn net.Conn) {
 		}()
 
 		// 3. 转发targetConn和localConn之间的数据
-		errChan := make(chan error, 2)
-		go func() {
-			errChan <- YPConn.Copy(targetConn, conn)
-		}()
-		go func() {
-			errChan <- YPConn.Copy(conn, targetConn)
-		}()
-
-		select {
-		case <-errChan:
-			return
-		}
-
+		YPConn.Forward(targetConn, conn)
 	}
-
 }
 
 func (s *Server) handShake(conn net.Conn) error {

@@ -72,18 +72,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	}()
 
 	// 3. 转发targetConn和localConn之间的数据
-	errChan := make(chan error, 2)
-	go func() {
-		errChan <- YPConn.Copy(targetConn, localConn)
-	}()
-	go func() {
-		errChan <- YPConn.Copy(localConn, targetConn)
-	}()
-
-	select {
-	case <-errChan:
-		return
-	}
+	YPConn.Forward(targetConn, localConn)
 }
 
 // 获取目标地址 string 类型
