@@ -50,7 +50,7 @@ var InstallCmd = &cmd.Command{
 			}
 			remoteCfg.ServerInfos[i].Method = method
 			key := CLI.ReadOne(fmt.Sprintf("请输入第 %d 个进程的秘钥", i+1))
-			for len(key) == 0{
+			for len(key) == 0 {
 				key = CLI.ReadOne("秘钥不可为空，请重新输入")
 			}
 			remoteCfg.ServerInfos[i].Key = key
