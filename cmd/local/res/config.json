@@ -24,6 +24,10 @@
           "method": "aes-128-cfb",
           "key": "kainhuck"
         }
+      ],
+      "no_proxy": [
+        "baidu.com",
+        "192.168.1.x"
       ]
     },
     {
@@ -49,6 +53,10 @@
           "method": "aes-128-cfb",
           "key": "kainhuck"
         }
+      ],
+      "no_proxy": [
+        "eastmoney.com",
+        "192.168.2.x"
       ]
     }
   ]

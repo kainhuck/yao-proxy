@@ -70,6 +70,8 @@ docker run --name yao-proxy --net=host --restart=always -v <your config path>:/e
 
 2. 实现cli来安装部署remote，以及生成local的配置文件
 
+3. 增加过滤规则，可以不代理某些地址
+
 
 
 ## 更新说明

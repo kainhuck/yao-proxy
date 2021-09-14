@@ -28,7 +28,9 @@ func Main() {
 	for _, info := range cfg.ServerInfos {
 		localAddr := fmt.Sprintf(":%d", info.Port)
 
-		server := NewServer(localAddr, logger, info.RemoteInfos)
+		filter := NewFilter(info.NoProxy)
+
+		server := NewServer(localAddr, logger, info.RemoteInfos, filter)
 
 		go server.Run()
 	}
