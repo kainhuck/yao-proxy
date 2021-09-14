@@ -1,12 +1,14 @@
 package local
 
 import (
+	"encoding/binary"
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
 	"github.com/kainhuck/yao-proxy/internal/log"
 	"io"
 	"net"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -198,7 +200,31 @@ func (s *Server) handleConn(conn net.Conn) {
 			_ = remoteConn.Close() // 走本地，关闭远程链接
 		}()
 
-		// 直接访问目标地址 todo
+		// 直接访问目标地址
+
+		targetConn, err := net.Dial("tcp", host)
+		if err != nil {
+			s.logger.Errorf("dial target error: %v", err)
+			return
+		}
+
+		defer func() {
+			_ = targetConn.Close()
+		}()
+
+		// 3. 转发targetConn和localConn之间的数据
+		errChan := make(chan error, 2)
+		go func() {
+			errChan <- YPConn.Copy(targetConn, conn)
+		}()
+		go func() {
+			errChan <- YPConn.Copy(conn, targetConn)
+		}()
+
+		select {
+		case <-errChan:
+			return
+		}
 
 	}
 
@@ -310,6 +336,9 @@ func (s *Server) getTargetAddr(conn net.Conn) ([]byte, string, error) {
 		}
 		host = net.IP(addr[2:addr[0]]).String()
 	}
+
+	port := binary.BigEndian.Uint16(addr[addr[0] : addr[0]+2])
+	host = net.JoinHostPort(host, strconv.Itoa(int(port)))
 
 	return addr, host, nil
 }
