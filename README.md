@@ -50,6 +50,7 @@ docker run --name yao-proxy --net=host --restart=always -v <your config path>:/e
 
    ```
    ./local_darwin_amd64 -c /etc/yao-proxy/config.json
+   ./remote_darwin_amd64 -c /etc/yao-proxy/config.json
    ```
 
 ## 配置文件示例
