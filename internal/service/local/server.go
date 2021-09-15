@@ -1,6 +1,7 @@
 package local
 
 import (
+	"context"
 	"encoding/binary"
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
@@ -19,22 +20,24 @@ type CipherRemote struct {
 }
 
 type Server struct {
+	ctx           context.Context
 	logger        log.Logger
 	localAddr     string
 	cipherRemotes *CipherRemote
 	index         int
 	crLength      int
-	remoteChan    chan *YPConn.Conn
+	remotePool    chan *YPConn.Conn
 	filter        *Filter
 }
 
-func NewServer(localAddr string, logger log.Logger, infos []RemoteInfo, filter *Filter) *Server {
+func NewServer(ctx context.Context, localAddr string, logger log.Logger, infos []RemoteInfo, filter *Filter) *Server {
 	s := &Server{
+		ctx:        ctx,
 		logger:     logger,
 		localAddr:  localAddr,
 		crLength:   len(infos),
 		index:      0,
-		remoteChan: make(chan *YPConn.Conn),
+		remotePool: make(chan *YPConn.Conn, 10),
 		filter:     filter,
 	}
 
@@ -83,17 +86,28 @@ func (s *Server) Run() {
 
 	go func() {
 		for {
-			conn, err := lis.Accept()
-			if err != nil {
-				s.logger.Errorf("accept failed: %v", err)
-				continue
+			select {
+			case <-s.ctx.Done():
+				return
+			case s.remotePool <- s.getRemoteConn():
 			}
+		}
+	}()
 
-			go func() {
-				s.remoteChan <- s.getRemoteConn()
-			}()
+	go func() {
+		for {
+			select {
+			case <-s.ctx.Done():
+				return
+			default:
+				conn, err := lis.Accept()
+				if err != nil {
+					s.logger.Errorf("accept failed: %v", err)
+					continue
+				}
 
-			go s.handleConn(conn)
+				go s.handleConn(conn)
+			}
 		}
 	}()
 
@@ -164,7 +178,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		// 4. 和远程建立链接并将目标地址发送给远程
 		remoteConn := new(YPConn.Conn)
 		select {
-		case remoteConn = <-s.remoteChan:
+		case remoteConn = <-s.remotePool:
 		case <-time.After(10 * time.Second):
 			s.logger.Errorf("dial remote time out")
 			return
@@ -182,11 +196,6 @@ func (s *Server) handleConn(conn net.Conn) {
 		// 5. 将RemoteConn的数据和conn的数据进行转发
 		YPConn.Forward(remoteConn, conn)
 	} else {
-		go func() {
-			remoteConn := <-s.remoteChan
-			_ = remoteConn.Close() // 走本地，关闭远程链接
-		}()
-
 		// 直接访问目标地址
 
 		targetConn, err := net.Dial("tcp", host)

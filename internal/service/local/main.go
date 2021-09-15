@@ -1,6 +1,7 @@
 package local
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/kainhuck/yao-proxy/internal/log"
@@ -25,12 +26,14 @@ func Main() {
 
 	logger := log.NewLogger(cfg.Debug)
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	for _, info := range cfg.ServerInfos {
 		localAddr := fmt.Sprintf(":%d", info.Port)
 
 		filter := NewFilter(info.NoProxy)
 
-		server := NewServer(localAddr, logger, info.RemoteInfos, filter)
+		server := NewServer(ctx, localAddr, logger, info.RemoteInfos, filter)
 
 		go server.Run()
 	}
@@ -39,4 +42,5 @@ func Main() {
 	signal.Notify(stopSignalCh, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGKILL, os.Interrupt)
 
 	<-stopSignalCh
+	cancel()
 }
