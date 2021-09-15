@@ -1,6 +1,8 @@
 package local
 
 import (
+	"encoding/binary"
+	"net"
 	"regexp"
 	"strings"
 )
@@ -14,32 +16,51 @@ import (
 */
 
 const (
-	IPv4Expr = `^(\d+?\.){3}\d+$`
-	IPv4XExpr = `^(\d+?\.|[x]\.){3}\d+$`
+	IPv4Expr      = `^(\d+?\.){3}\d+$`
+	IPv4XExpr     = `^(\d+?\.|[x]\.){3}\d+$`
 	Ipv4RangeExpr = `^(\d+?\.){3}\d+?-(\d+?\.){3}\d+$`
 )
 
 var (
-	IPv4Cpl = regexp.MustCompile(IPv4Expr)
-	IPv4XCpl = regexp.MustCompile(IPv4XExpr)
+	IPv4Cpl      = regexp.MustCompile(IPv4Expr)
+	IPv4XCpl     = regexp.MustCompile(IPv4XExpr)
 	IPv4RangeCpl = regexp.MustCompile(Ipv4RangeExpr)
+
+	prefix = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255}
 )
 
 type Filter struct {
 	re []*regexp.Regexp
+	mp map[string]struct{}
 }
 
 func NewFilter(raw []string) *Filter {
 	re := make([]*regexp.Regexp, 0)
-
-	for _, r := range raw{
-		if IPv4Cpl.MatchString(r){
-			// 纯 IPv4 什么都不处理
-		}else if IPv4XCpl.MatchString(r){
+	mp := make(map[string]struct{})
+	for _, r := range raw {
+		if IPv4Cpl.MatchString(r) {
+			// 纯 IPv4 do nothing
+		} else if IPv4XCpl.MatchString(r) {
 			// 将 x 替换为 \d+?
 			r = strings.Replace(r, "x", `\d+?`, -1)
-		}else if IPv4RangeCpl.MatchString(r){
-			// todo 暂时不处理范围匹配
+		} else if IPv4RangeCpl.MatchString(r) {
+			ips := strings.Split(r, "-")
+			ip1 := binary.BigEndian.Uint32(net.ParseIP(ips[0])[12:])
+			ip2 := binary.BigEndian.Uint32(net.ParseIP(ips[1])[12:])
+			if ip2 < ip1 { // ip2 不可以小于 ip1
+				continue
+			}
+
+			for i := ip1; i <= ip2; i++ {
+				ipBts := make([]byte, 4)
+				binary.BigEndian.PutUint32(ipBts, i)
+				ip := append(prefix, ipBts...)
+
+				a := net.IP(ip)
+				mp[a.String()] = struct{}{}
+			}
+
+			continue
 		}
 
 		re = append(re, regexp.MustCompile(r))
@@ -47,15 +68,19 @@ func NewFilter(raw []string) *Filter {
 
 	return &Filter{
 		re: re,
+		mp: mp,
 	}
 }
 
-func (f *Filter) Check(str string) bool {
-	for _, r := range f.re{
-		if r.MatchString(str){
+func (f *Filter) Check(host string) bool {
+	ip := strings.Split(host, ":")[0]
+	for _, r := range f.re {
+		if r.MatchString(ip) {
 			return true
 		}
 	}
 
-	return false
+	_, ok := f.mp[ip]
+
+	return ok
 }
