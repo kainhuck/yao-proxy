@@ -63,7 +63,7 @@ func NewFilter(raw []string) *Filter {
 			}
 
 			continue
-		}else{
+		} else {
 			// 这种情况是域名，需要解析出真实IP地址 再保存一份其IP
 			re = append(re, regexp.MustCompile(r))
 			ip, err := net.ResolveIPAddr("ip", r)
