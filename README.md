@@ -40,6 +40,18 @@ docker run --name yao-proxy --net=host --restart=always -v <your config path>:/e
 docker run --name yao-proxy --net=host --restart=always -v <your config path>:/etc/yao-proxy/config.json -d docker.pkg.github.com/kainhuck/yao-proxy/remote:latest
 ```
 
+## 二进制部署
+
+1. 下载最新的对应平台的二进制文件：[🔗](https://github.com/kainhuck/yao-proxy/releases)
+
+2. 准备好配置文件
+
+3. 运行程序 `-c` 指定配置文件，例:
+
+   ```
+   ./local_darwin_amd64 -c /etc/yao-proxy/config.json
+   ```
+
 ## 配置文件示例
 
 [local-config](cmd/local/res/config.json)
