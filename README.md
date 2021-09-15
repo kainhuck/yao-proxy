@@ -77,7 +77,6 @@ docker run --name yao-proxy --net=host --restart=always -v <your config path>:/e
 
 - 过滤规则增加ipv4区间写法，参考[local-config](cmd/local/res/config.json)
 
-
 ### v2.2.2
 
 - 本地代理新增过滤规则，可以不代理指定的域名或者IP地址，写法参考[local-config](cmd/local/res/config.json)
