@@ -1,6 +1,7 @@
 package remote
 
 import (
+	"context"
 	"encoding/binary"
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
 	YPConn "github.com/kainhuck/yao-proxy/internal/conn"
@@ -11,13 +12,15 @@ import (
 )
 
 type Server struct {
+	ctx       context.Context
 	logger    log.Logger
 	localAddr string
 	cipher    *YPCipher.Cipher
 }
 
-func NewServer(localAddr string, logger log.Logger, cipher *YPCipher.Cipher) *Server {
+func NewServer(ctx context.Context, localAddr string, logger log.Logger, cipher *YPCipher.Cipher) *Server {
 	return &Server{
+		ctx:       ctx,
 		logger:    logger,
 		localAddr: localAddr,
 		cipher:    cipher,
@@ -33,18 +36,23 @@ func (s *Server) Run() {
 
 	go func() {
 		for {
-			conn, err := lis.Accept()
-			if err != nil {
-				s.logger.Errorf("accept failed: %v", err)
-				continue
-			}
+			select {
+			case <-s.ctx.Done():
+				return
+			default:
+				conn, err := lis.Accept()
+				if err != nil {
+					s.logger.Errorf("accept failed: %v", err)
+					continue
+				}
 
-			go s.handleConn(conn)
+				go s.handleConn(conn)
+			}
 		}
 	}()
 
 	s.logger.Infof("listen on %v success", lis.Addr())
-	select {}
+	<-s.ctx.Done()
 }
 
 func (s *Server) handleConn(conn net.Conn) {
