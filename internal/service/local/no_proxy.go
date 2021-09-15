@@ -40,9 +40,11 @@ func NewFilter(raw []string) *Filter {
 	for _, r := range raw {
 		if IPv4Cpl.MatchString(r) {
 			// 纯 IPv4 do nothing
+			re = append(re, regexp.MustCompile(r))
 		} else if IPv4XCpl.MatchString(r) {
 			// 将 x 替换为 \d+?
 			r = strings.Replace(r, "x", `\d+?`, -1)
+			re = append(re, regexp.MustCompile(r))
 		} else if IPv4RangeCpl.MatchString(r) {
 			ips := strings.Split(r, "-")
 			ip1 := binary.BigEndian.Uint32(net.ParseIP(ips[0])[12:])
@@ -61,9 +63,15 @@ func NewFilter(raw []string) *Filter {
 			}
 
 			continue
+		}else{
+			// 这种情况是域名，需要解析出真实IP地址 再保存一份其IP
+			re = append(re, regexp.MustCompile(r))
+			ip, err := net.ResolveIPAddr("ip", r)
+			if err != nil {
+				continue
+			}
+			re = append(re, regexp.MustCompile(ip.String()))
 		}
-
-		re = append(re, regexp.MustCompile(r))
 	}
 
 	return &Filter{
