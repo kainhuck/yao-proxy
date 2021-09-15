@@ -1,6 +1,7 @@
 package remote
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	YPCipher "github.com/kainhuck/yao-proxy/internal/cipher"
@@ -21,6 +22,8 @@ func Main() {
 
 	logger := log.NewLogger(cfg.Debug)
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	for _, info := range cfg.ServerInfos {
 		localAddr := fmt.Sprintf(":%d", info.Port)
 		cipher, err := YPCipher.NewCipher(info.Method, info.Key)
@@ -29,7 +32,7 @@ func Main() {
 			os.Exit(1)
 		}
 
-		server := NewServer(localAddr, logger, cipher)
+		server := NewServer(ctx, localAddr, logger, cipher)
 		go server.Run()
 	}
 
@@ -37,4 +40,5 @@ func Main() {
 	signal.Notify(stopSignalCh, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGKILL, os.Interrupt)
 
 	<-stopSignalCh
+	cancel()
 }

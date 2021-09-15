@@ -112,7 +112,7 @@ func (s *Server) Run() {
 	}()
 
 	s.logger.Infof("listen on %v success", lis.Addr())
-	select {}
+	<-s.ctx.Done()
 }
 
 func (s *Server) handleConn(conn net.Conn) {
