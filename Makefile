@@ -17,7 +17,7 @@ build-all-platform:
 	./bin/go_build_all.py -o ./output/local cmd/local/main.go
 	./bin/go_build_all.py -o ./output/remote cmd/remote/main.go
 
-.PHONY: run-local run-remote run-cli
+.PHONY: run-local run-remote run-cli run-test-local
 
 run-cli:
 	$(GO) run ./cmd/cli/main.go
@@ -27,6 +27,9 @@ run-local:
 
 run-remote:
 	$(GO) run ./cmd/remote/main.go -c ./cmd/remote/res/config.json
+
+run-test-local:
+	$(GO) run ./cmd/local/main.go -c /etc/yao/config.json
 
 .PHONY: docker-local docker-remote
 
