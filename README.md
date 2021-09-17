@@ -28,7 +28,7 @@ make run-remote
 
 ## docker 部署
 
-**注意📢: docker镜像不再发布到github packages，现在只发布到dockerhub：[🔗](https://hub.docker.com/repository/docker/kainhuck/yao-proxy)**
+**注意📢: docker镜像不再发布到github packages(已停止更新)，现在只发布到dockerhub：[🔗](https://hub.docker.com/repository/docker/kainhuck/yao-proxy)**
 
 现在将两个镜像发布到同一个仓库，通过tag来区分，
 
