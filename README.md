@@ -28,16 +28,44 @@ make run-remote
 
 ## docker 部署
 
-本地代理：
+**注意📢: docker镜像不再发布到github packages(已停止更新)，现在只发布到dockerhub：[🔗](https://hub.docker.com/repository/docker/kainhuck/yao-proxy)**
 
-```
-docker run --name yao-proxy --net=host --restart=always -v <your config path>:/etc/yao-proxy/config.json -d docker.pkg.github.com/kainhuck/yao-proxy/local:latest
+现在将两个镜像发布到同一个仓库，通过tag来区分，
+
+- local镜像tag
+
+  latest-local
+
+- remote镜像tag
+
+  latest-remote
+
+部署方式如下：
+
+_注意：_
+
+_1. 运行时请指定配置文件的路径，[配置文件示例](#配置文件示例)_ 
+
+_2. mac系统不支持host模式，请手动通过 -p 来映射端口_
+
+**本地代理：**
+
+```shell
+docker run --name yao-proxy \
+           --net=host 
+           --restart=always 
+           -v <your config path>:/etc/yao-proxy/config.json \
+           -d kainhuck/yao-proxy:latest-local
 ```
 
-远程代理：
+**远程代理：**
 
-```
-docker run --name yao-proxy --net=host --restart=always -v <your config path>:/etc/yao-proxy/config.json -d docker.pkg.github.com/kainhuck/yao-proxy/remote:latest
+```shell
+docker run --name yao-proxy \
+           --net=host \
+           --restart=always \
+           -v <your config path>:/etc/yao-proxy/config.json \
+           -d kainhuck/yao-proxy:latest-remote
 ```
 
 ## 二进制部署
