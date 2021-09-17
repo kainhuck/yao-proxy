@@ -43,4 +43,4 @@ docker-remote:
 .PHONY: docker-all
 
 docker-all:
-	./bin/docker-build.sh all
+	./bin/docker-build.py all
