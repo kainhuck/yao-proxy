@@ -34,10 +34,10 @@ run-test-local:
 .PHONY: docker-local docker-remote
 
 docker-local:
-	docker build -t docker.pkg.github.com/kainhuck/yao-proxy/local -f cmd/local/Dockerfile .
+	docker build -t kainhuck/yao-proxy:latest-local -f cmd/local/Dockerfile .
 
 docker-remote:
-	docker build -t docker.pkg.github.com/kainhuck/yao-proxy/remote -f cmd/remote/Dockerfile .
+	docker build -t kainhuck/yao-proxy:latest-remote -f cmd/remote/Dockerfile .
 
 # build and push docker
 .PHONY: docker-all
