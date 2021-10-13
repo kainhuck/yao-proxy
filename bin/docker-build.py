@@ -21,7 +21,6 @@ def build(platform: str, url: str, version: str, name: str):
 
 def main():
     url = "kainhuck/yao-proxy"
-    name = ""
     platform = ""
     version = ""
     if len(sys.argv) == 1:
