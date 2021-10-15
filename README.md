@@ -11,6 +11,7 @@
  4. 支持docker部署，一条命令便可完成部署
  5. 本地代理支持配置多个远程代理
  6. 远程代理可以开启多个端口实现负载均衡
+  7. 支持中间代理，可用通过中间代理将多个节点串联，或网状串联，也可不部署中间代理，只使用本地和远程代理
 
 ## 声明
 
@@ -20,15 +21,19 @@
 
 ### 快速测试
 
-```
+```shell
 git clone https://github.com/kainhuck/yao-proxy.git
 ```
 
-```
+```shell
 make run-local
 ```
 
+```shell
+make run-middle
 ```
+
+```shell
 make run-remote
 ```
 
@@ -41,6 +46,10 @@ make run-remote
 - local镜像tag
 
   latest-local
+
+- middle镜像tag
+
+  latest-middle
 
 - remote镜像tag
 
@@ -76,6 +85,16 @@ docker run --name yao-proxy \
            -d kainhuck/yao-proxy:latest-remote
 ```
 
+**中间代理：**
+
+```shell
+docker run --name yao-proxy \
+           --net=host \
+           --restart=always \
+           -v <your config path>:/etc/yao-proxy/config.json \
+           -d kainhuck/yao-proxy:latest-middle
+```
+
 ## 二进制部署
 
 1. 下载最新的对应平台的二进制文件：[🔗](https://github.com/kainhuck/yao-proxy/releases)
@@ -86,14 +105,17 @@ docker run --name yao-proxy \
 
    ```
    ./local_darwin_amd64 -c /etc/yao-proxy/config.json
+   ./middle_darwin_amd64 -c /etc/yao-proxy/config.json
    ./remote_darwin_amd64 -c /etc/yao-proxy/config.json
    ```
 
 ## 配置文件示例
 
-[local-config](cmd/local/res/config.json)
+[local-config](config_demo/local_config.json)
 
-[remote-config](cmd/remote/res/config.json)
+[middle-config](config_demo/middle_config.json)
+
+[remote-config](config_demo/middle_config.json)
 
 ## 贡献代码
 
