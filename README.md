@@ -121,11 +121,11 @@ docker run --name yao-proxy \
 
 ### v2.2.3
 
-- 过滤规则增加ipv4区间写法，参考[local-config](cmd/local/res/config.json#L31)
+- 过滤规则增加ipv4区间写法，参考[local-config](config_demo/local_config.json#L31)
 
 ### v2.2.2
 
-- 本地代理新增过滤规则，可以不代理指定的域名或者IP地址，写法参考[local-config](cmd/local/res/config.json#L28)
+- 本地代理新增过滤规则，可以不代理指定的域名或者IP地址，写法参考[local-config](config_demo/local_config.json#L28)
 
 ### v2.2.1
 
