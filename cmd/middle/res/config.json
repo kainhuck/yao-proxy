@@ -1,0 +1,17 @@
+{
+  "debug": true,
+  "server_infos": [
+    {
+      "port": 20802,
+      "method": "aes-128-cfb",
+      "key": "fasda213$%",
+      "next_node_infos": [
+        {
+          "addr": "127.0.0.1:20805",
+          "method": "aes-128-cfb",
+          "key": "kainhuck"
+        }
+      ]
+    }
+  ]
+}

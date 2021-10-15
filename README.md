@@ -115,6 +115,7 @@ docker run --name yao-proxy \
 
 2. 实现cli来安装部署remote，以及生成local的配置文件
 
+3. 增加中间层，可以串联多个节点
 
 ## 更新说明
 

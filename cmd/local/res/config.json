@@ -2,62 +2,18 @@
   "debug": true,
   "server_infos": [
     {
-      "port": 20808,
+      "port": 20801,
       "remote_infos": [
         {
-          "remote_addr": "127.0.0.1:20804",
+          "remote_addr": "127.0.0.1:20802",
           "method": "aes-128-cfb",
-          "key": "atuatuatu"
-        },
-        {
-          "remote_addr": "127.0.0.1:20805",
-          "method": "aes-128-cfb",
-          "key": "atuatuatu"
-        },
-        {
-          "remote_addr": "127.0.0.1:20806",
-          "method": "aes-128-cfb",
-          "key": "atuatuatu"
-        },
-        {
-          "remote_addr": "127.0.0.1:20807",
-          "method": "aes-128-cfb",
-          "key": "kainhuck"
+          "key": "fasda213$%"
         }
       ],
       "no_proxy": [
         "baidu.com",
         "172.16.x.x",
         "192.168.1.170-192.168.1.200"
-      ]
-    },
-    {
-      "port": 20809,
-      "remote_infos": [
-        {
-          "remote_addr": "127.0.0.1:20804",
-          "method": "aes-128-cfb",
-          "key": "atuatuatu"
-        },
-        {
-          "remote_addr": "127.0.0.1:20805",
-          "method": "aes-128-cfb",
-          "key": "atuatuatu"
-        },
-        {
-          "remote_addr": "127.0.0.1:20806",
-          "method": "aes-128-cfb",
-          "key": "atuatuatu"
-        },
-        {
-          "remote_addr": "127.0.0.1:20807",
-          "method": "aes-128-cfb",
-          "key": "kainhuck"
-        }
-      ],
-      "no_proxy": [
-        "eastmoney.com",
-        "192.168.2.x"
       ]
     }
   ]
