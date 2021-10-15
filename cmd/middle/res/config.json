@@ -1,0 +1,73 @@
+{
+  "debug": true,
+  "server_infos": [
+    {
+      "port": 20803,
+      "method": "aes-128-cfb",
+      "key": "fasda213$%",
+      "next_node_infos": [
+        {
+          "addr": "127.0.0.1:20805",
+          "method": "aes-128-cfb",
+          "key": "kainhuck"
+        },
+        {
+          "addr": "127.0.0.1:20806",
+          "method": "aes-128-cfb",
+          "key": "huckkain"
+        }
+      ]
+    },
+    {
+      "port": 20804,
+      "method": "aes-128-cfb",
+      "key": "fas21da3$%",
+      "next_node_infos": [
+        {
+          "addr": "127.0.0.1:20806",
+          "method": "aes-128-cfb",
+          "key": "huckkain"
+        },
+        {
+          "addr": "127.0.0.1:20805",
+          "method": "aes-128-cfb",
+          "key": "kainhuck"
+        }
+      ]
+    },
+    {
+      "port": 20805,
+      "method": "aes-128-cfb",
+      "key": "kainhuck",
+      "next_node_infos": [
+        {
+          "addr": "127.0.0.1:20807",
+          "method": "aes-128-cfb",
+          "key": "123456"
+        },
+        {
+          "addr": "127.0.0.1:20808",
+          "method": "aes-128-cfb",
+          "key": "654321"
+        }
+      ]
+    },
+    {
+      "port": 20806,
+      "method": "aes-128-cfb",
+      "key": "huckkain",
+      "next_node_infos": [
+        {
+          "addr": "127.0.0.1:20808",
+          "method": "aes-128-cfb",
+          "key": "654321"
+        },
+        {
+          "addr": "127.0.0.1:20807",
+          "method": "aes-128-cfb",
+          "key": "123456"
+        }
+      ]
+    }
+  ]
+}
