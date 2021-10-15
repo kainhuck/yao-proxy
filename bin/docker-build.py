@@ -5,6 +5,8 @@ import sys
 BUILD_CMD_FORMAT = 'docker buildx build --platform {platform} -t {url}:{version}-{name} -f cmd/{name}/Dockerfile ' \
                    '--push . '
 
+services = ("local", "middle", "remote")
+
 
 def check_ok(name: str, code: int):
     if code != 0:
@@ -45,15 +47,10 @@ def main():
         version = "latest"
 
     if name == "all":
-        build(platform, url, version, "local")
-        build(platform, url, version, "middle")
-        build(platform, url, version, "remote")
-    elif name == "local":
-        build(platform, url, version, "local")
-    elif name == "remote":
-        build(platform, url, version, "remote")
-    elif name == "middle":
-        build(platform, url, version, "middle")
+        for s in services:
+            build(platform, url, version, s)
+    elif name in services:
+        build(platform, url, version, name)
     else:
         print("不支持的服务: " + name)
 
