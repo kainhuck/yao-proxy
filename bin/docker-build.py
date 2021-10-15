@@ -46,11 +46,14 @@ def main():
 
     if name == "all":
         build(platform, url, version, "local")
+        build(platform, url, version, "middle")
         build(platform, url, version, "remote")
     elif name == "local":
         build(platform, url, version, "local")
     elif name == "remote":
         build(platform, url, version, "remote")
+    elif name == "middle":
+        build(platform, url, version, "middle")
     else:
         print("不支持的服务: " + name)
 

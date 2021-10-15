@@ -2,24 +2,14 @@
   "debug": true,
   "server_infos": [
     {
-      "method": "aes-128-cfb",
-      "port": 20804,
-      "key": "atuatuatu"
-    },
-    {
-      "method": "aes-128-cfb",
-      "port": 20805,
-      "key": "atuatuatu"
-    },
-    {
-      "method": "aes-128-cfb",
-      "port": 20806,
-      "key": "atuatuatu"
-    },
-    {
-      "method": "aes-128-cfb",
       "port": 20807,
-      "key": "kainhuck"
+      "method": "aes-128-cfb",
+      "key": "123456"
+    },
+    {
+      "port": 20808,
+      "method": "aes-128-cfb",
+      "key": "654321"
     }
   ]
 }
