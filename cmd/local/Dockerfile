@@ -8,6 +8,8 @@ WORKDIR /yao-proxy
 
 COPY . .
 
+ENV GOPROXY=https://goproxy.cn,direct
+
 RUN make build-local
 
 FROM alpine:3.12
